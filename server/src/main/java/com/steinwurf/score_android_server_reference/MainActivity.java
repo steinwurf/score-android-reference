@@ -102,9 +102,7 @@ public class MainActivity extends AppCompatActivity implements Server.OnStateCha
                     backgroundHandler.post(new Runnable() {
                         @Override
                         public void run() {
-                            Log.d(TAG, "STOP camera");
                             camera.stop();
-                            Log.d(TAG, "STOP server");
                             server.stop();
                         }
                     }, onPostFinishedListener);
@@ -127,24 +125,8 @@ public class MainActivity extends AppCompatActivity implements Server.OnStateCha
     }
 
     @Override
-    public void onServerStarted() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                startStopToggleButton.setEnabled(true);
-            }
-        });
-    }
-
-    @Override
     public void onServerError(String reason) {
         Log.d(TAG, reason);
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                startStopToggleButton.setEnabled(true);
-            }
-        });
     }
 
     @Override

@@ -12,7 +12,6 @@ import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.os.Build;
 import android.os.Handler;
-import android.os.HandlerThread;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.util.Size;
@@ -25,7 +24,7 @@ import java.util.Collections;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-public class Camera {
+class Camera {
 
     private Thread mEncoderThread;
 
@@ -105,14 +104,9 @@ public class Camera {
     };
 
     /**
-     * An additional thread for running tasks that shouldn't block the UI.
-     */
-    private HandlerThread mBackgroundThread;
-
-    /**
      * A {@link Handler} for running tasks in the background.
      */
-    private Handler mBackgroundHandler;
+    private BackgroundHandler mBackgroundHandler = new BackgroundHandler();
 
     /**
      * {@link CaptureRequest.Builder} for the camera preview
@@ -134,20 +128,20 @@ public class Camera {
      */
     private Semaphore mCameraOpenCloseLock = new Semaphore(1);
 
-    public Camera(OnDataListener onDataListener)
+    Camera(OnDataListener onDataListener)
     {
         this.onDataListener = onDataListener;
     }
 
-    public void start(CameraManager manager) throws IOException {
+    void start(CameraManager manager) throws IOException {
         startEncoder();
-        startBackgroundThread();
+        mBackgroundHandler.start();
         openCamera(manager);
     }
 
-    public void stop() {
+    void stop() {
         closeCamera();
-        stopBackgroundThread();
+        mBackgroundHandler.stop();
         stopEncoder();
     }
 
@@ -172,15 +166,6 @@ public class Camera {
     }
 
     /**
-     * Starts a background thread and its {@link Handler}.
-     */
-    private void startBackgroundThread() {
-        mBackgroundThread = new HandlerThread(TAG);
-        mBackgroundThread.start();
-        mBackgroundHandler = new Handler(mBackgroundThread.getLooper());
-    }
-
-    /**
      * Opens the camera specified by the given id.
      */
     @SuppressLint("MissingPermission")
@@ -193,7 +178,7 @@ public class Camera {
             // Just pick the first camera
             String cameraId = manager.getCameraIdList()[0];
 
-            manager.openCamera(cameraId, mStateCallback, mBackgroundHandler);
+            manager.openCamera(cameraId, mStateCallback, mBackgroundHandler.getHandler());
         } catch (CameraAccessException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
@@ -205,7 +190,6 @@ public class Camera {
      * Closes the current {@link CameraDevice}.
      */
     private void closeCamera() {
-        Log.d(TAG, "closeCamera");
         try {
             mCameraOpenCloseLock.acquire();
             if (null != mCaptureSession) {
@@ -230,26 +214,7 @@ public class Camera {
         }
     }
 
-    /**
-     * Stops the background thread and its {@link Handler}.
-     */
-    private void stopBackgroundThread() {
-        Log.d(TAG, "stopBackgroundThread");
-        if (mBackgroundThread == null)
-            return;
-
-        mBackgroundThread.quitSafely();
-        try {
-            mBackgroundThread.join();
-            mBackgroundThread = null;
-            mBackgroundHandler = null;
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
     private void stopEncoder() {
-        Log.d(TAG, "stopEncoder");
         if (mEncoder != null) {
             // Signal end of stream
             mEncoder.signalEndOfInputStream();
@@ -308,7 +273,7 @@ public class Camera {
                                         super.onCaptureStarted(session, request, timestamp, frameNumber);
 
                                     }
-                                }, mBackgroundHandler);
+                                }, mBackgroundHandler.getHandler());
                             } catch (CameraAccessException e) {
                                 e.printStackTrace();
                             }
@@ -330,15 +295,13 @@ public class Camera {
             while (true) {
                 int encoderStatus = mEncoder.dequeueOutputBuffer(bufferInfo, 10000);
                 if (encoderStatus == MediaCodec.INFO_TRY_AGAIN_LATER) {
-                    Log.i(TAG, "no output available, spinning");
+//                    Log.i(TAG, "no output available, spinning");
                     bufferInfo = new MediaCodec.BufferInfo();
                 } else if (encoderStatus == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
                     MediaFormat newFormat = mEncoder.getOutputFormat();
-                    Log.d(TAG, "output format changed");
-                } else if (encoderStatus < 0) {
-                    Log.w(TAG, "unexpected result from mEncoder.dequeueOutputBuffer: " + encoderStatus);
-                } else {
-                    Log.i(TAG, "output available");
+//                    Log.d(TAG, "output format changed");
+                } else if (encoderStatus >= 0) {
+//                    Log.i(TAG, "output available");
                     // Normal flow: get output encoded buffer, send to VideoDataCallback
                     ByteBuffer videoData = mEncoder.getOutputBuffer(encoderStatus);
                     assert videoData != null;
@@ -353,7 +316,7 @@ public class Camera {
                         // It's usually necessary to adjust the ByteBuffer values to match BufferInfo.
                         videoData.position(bufferInfo.offset);
                         videoData.limit(bufferInfo.offset + bufferInfo.size);
-                        ByteBuffer data = ByteBuffer.allocate(bufferInfo.size + Long.BYTES);
+                        ByteBuffer data = ByteBuffer.allocate(bufferInfo.size + Long.SIZE / Byte.SIZE);
                         data.order(ByteOrder.BIG_ENDIAN);
                         data.putLong(bufferInfo.presentationTimeUs);
                         data.put(videoData);
@@ -364,6 +327,8 @@ public class Camera {
                         onDataListener.onFinish();
                         return;
                     }
+                } else {
+//                    Log.w(TAG, "unexpected result from mEncoder.dequeueOutputBuffer: " + encoderStatus);
                 }
             }
         }

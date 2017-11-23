@@ -4,7 +4,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
 
-public class BackgroundHandler {
+class BackgroundHandler {
 
     interface OnPostFinishedListener {
         void finished();
@@ -32,6 +32,8 @@ public class BackgroundHandler {
 
     void post(final Runnable runnable, final OnPostFinishedListener onPostFinishedListener)
     {
+        if (mBackgroundHandler == null)
+            throw new IllegalStateException();
         post(new Runnable() {
             @Override
             public void run() {
@@ -43,11 +45,15 @@ public class BackgroundHandler {
 
     void post(Runnable runnable)
     {
+        if (mBackgroundHandler == null)
+            throw new IllegalStateException();
         mBackgroundHandler.post(runnable);
     }
 
     Handler getHandler()
     {
+        if (mBackgroundHandler == null)
+            throw new IllegalStateException();
         return mBackgroundHandler;
     }
 
@@ -55,7 +61,9 @@ public class BackgroundHandler {
      * Stops the background thread and its {@link Handler}.
      */
     void stop() {
-        Log.d(TAG, "stopBackgroundThread");
+        if (mBackgroundThread == null)
+            return;
+
         mBackgroundThread.quitSafely();
         try {
             mBackgroundThread.join();

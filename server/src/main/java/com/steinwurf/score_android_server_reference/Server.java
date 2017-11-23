@@ -15,7 +15,6 @@ class Server {
 
     interface OnStateChangeListener
     {
-        void onServerStarted();
         void onServerError(String reason);
     }
 
@@ -34,23 +33,24 @@ class Server {
         this.onStateChangeListener = onStateChangeListener;
     }
 
-    void start(final String ipString, final String portString) {
+    void start(String ipString, String portString) {
+        try {
+            port = Integer.parseInt(portString);
+            socket = new MulticastSocket(port);
+            ip = InetAddress.getByName(ipString);
+            socket.setLoopbackMode(/*disabled=*/ true);
+            socket.joinGroup(ip);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         connectionThread = new Thread(new Runnable()
         {
             @Override
             public void run() {
                 try {
-                    port = Integer.parseInt(portString);
-                    socket = new MulticastSocket(port);
-                    ip = InetAddress.getByName(ipString);
-                    socket.setLoopbackMode(/*disabled=*/ true);
-                    socket.joinGroup(ip);
-
-                    Log.d(TAG, "started");
-                    onStateChangeListener.onServerStarted();
-
                     // Read
-                    while (!socket.isClosed())
+                    while (isRunning())
                     {
                         DatagramPacket packet = new DatagramPacket(receiveBuffer, receiveBuffer.length);
                         socket.receive(packet);
@@ -64,7 +64,6 @@ class Server {
             }
         });
         connectionThread.start();
-        Log.d(TAG, "started");
     }
 
     void stop() {
@@ -79,18 +78,17 @@ class Server {
                 e.printStackTrace();
             }
         }
-        Log.d(TAG, "stopped");
     }
 
     private void handleSnack(DatagramPacket packet) {
     }
 
-    boolean isRunning()
+    private boolean isRunning()
     {
         return socket != null && !socket.isClosed();
     }
 
-    public void sendData(byte[] data) {
+    void sendData(byte[] data) {
         if (isRunning())
         {
             DatagramPacket packet = new DatagramPacket(data, data.length, ip, port);
