@@ -1,11 +1,15 @@
 package com.steinwurf.score_android_client_reference;
 
+import android.net.DhcpInfo;
+import android.net.wifi.WifiManager;
+import android.text.format.Formatter;
 import android.util.Log;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 public class KeepAlive
 {
@@ -15,6 +19,25 @@ public class KeepAlive
     private int mInterval;
     private Thread mThread = null;
     private boolean mRunning = false;
+
+    static KeepAlive createKeepAlive(WifiManager wm, int keepAliveInterval) {
+        try
+        {
+            String gatewayIP = "192.168.0.1";
+            DhcpInfo dhcp = wm.getDhcpInfo();
+            if (dhcp != null)
+            {
+                //noinspection deprecation
+                gatewayIP = Formatter.formatIpAddress(dhcp.gateway);
+            }
+            return new KeepAlive(InetAddress.getByName(gatewayIP), 13337, keepAliveInterval);
+        }
+        catch (UnknownHostException e)
+        {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     public KeepAlive(InetAddress host, int port, int interval)
     {

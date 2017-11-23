@@ -13,10 +13,9 @@
         android:textOff="@string/start"
         android:textOn="@string/stop"/>
 
-    <SurfaceView
-        android:id="@+id/videoSurfaceView"
+    <TextureView
+        android:id="@+id/videoTextureView"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_height="match_parent"/>
 
 </LinearLayout>

@@ -71,7 +71,6 @@ public class MainActivity extends AppCompatActivity implements Server.OnStateCha
         startStopToggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(final CompoundButton buttonView, boolean isChecked) {
-                Log.d(TAG, "onCheckedChanged");
                 buttonView.setEnabled(false);
                 BackgroundHandler.OnPostFinishedListener onPostFinishedListener = new BackgroundHandler.OnPostFinishedListener() {
                     @Override

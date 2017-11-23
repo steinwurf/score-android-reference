@@ -80,12 +80,12 @@ class Server {
         }
     }
 
-    private void handleSnack(DatagramPacket packet) {
-    }
-
     private boolean isRunning()
     {
         return socket != null && !socket.isClosed();
+    }
+
+    private void handleSnack(DatagramPacket packet) {
     }
 
     void sendData(byte[] data) {

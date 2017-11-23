@@ -1,6 +1,6 @@
 package com.steinwurf.score_android_client_reference;
 
-import android.util.Log;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -14,40 +14,41 @@ class Client {
 
     private static final String TAG = Client.class.getSimpleName();
 
-    interface IClientHandler
+    interface OnStateChangeListener
     {
-        void onClientStarted();
         void onClientError(String reason);
+        void onData(ByteBuffer data);
     }
 
     private final byte[] receiveBuffer = new byte[4096];
 
-    private final IClientHandler handler;
+    private final OnStateChangeListener onStateChangeListener;
 
     private Thread connectionThread = null;
     private MulticastSocket socket;
 
-    Client(IClientHandler handler)
+    Client(@NotNull OnStateChangeListener onStateChangeListener)
     {
-        this.handler = handler;
+        this.onStateChangeListener = onStateChangeListener;
     }
 
     void start(final String ipString, final String portString) {
+        try {
+            int port = Integer.parseInt(portString);
+            socket = new MulticastSocket(port);
+            InetAddress ip = InetAddress.getByName(ipString);
+            socket.setLoopbackMode(/*disabled=*/ true);
+            socket.joinGroup(ip);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         connectionThread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    int port = Integer.parseInt(portString);
-                    InetAddress ip = InetAddress.getByName(ipString);
-                    socket = new MulticastSocket(port);
-                    socket.joinGroup(ip);
-
-                    Log.d(TAG, "started");
-                    if (handler != null)
-                        handler.onClientStarted();
-
                     // Read
-                    while(!socket.isClosed())
+                    while(isRunning())
                     {
                         DatagramPacket packet = new DatagramPacket(receiveBuffer, receiveBuffer.length);
                         socket.receive(packet);
@@ -56,28 +57,31 @@ class Client {
                     }
 
                 } catch (IOException | NumberFormatException e) {
-                    e.printStackTrace();
-                    if (handler != null)
-                        handler.onClientError(e.toString());
+                    if (isRunning())
+                        onStateChangeListener.onClientError(e.toString());
                 }
             }
         });
         connectionThread.start();
     }
 
-    public void stop() {
-
+    void stop() {
         if (socket != null) {
             socket.close();
         }
 
-        if (Thread.currentThread() != connectionThread) {
+        if (connectionThread != null && Thread.currentThread() != connectionThread) {
             try {
                 connectionThread.join();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    private boolean isRunning()
+    {
+        return socket != null && !socket.isClosed();
     }
 
     private void sendSnacks(SocketAddress socketAddress) throws IOException {
@@ -92,6 +96,7 @@ class Client {
                 packet.getData(),
                 packet.getOffset(),
                 packet.getLength());
+        onStateChangeListener.onData(buffer);
     }
 
 }

@@ -20,6 +20,9 @@ allprojects {
         google()
         jcenter()
         maven {
+            url "http://artifactory.steinwurf.com/artifactory/libs-release-local"
+        }
+        maven {
             url "http://artifactory.steinwurf.com/artifactory/private-libs-release-local"
             credentials {
                 username = "${artifactory_username}"
