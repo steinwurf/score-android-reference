@@ -2,6 +2,8 @@ package com.steinwurf.score_android_server_reference;
 
 import android.util.Log;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
@@ -11,7 +13,7 @@ class Server {
 
     private static final String TAG = Server.class.getSimpleName();
 
-    interface IServerHandler
+    interface OnStateChangeListener
     {
         void onServerStarted();
         void onServerError(String reason);
@@ -19,7 +21,7 @@ class Server {
 
     private final byte[] receiveBuffer = new byte[4096];
 
-    final private IServerHandler handler;
+    final private OnStateChangeListener onStateChangeListener;
 
     private Thread connectionThread = null;
     private MulticastSocket socket;
@@ -27,9 +29,9 @@ class Server {
     private Integer port = null;
     private InetAddress ip = null;
 
-    Server(IServerHandler handler)
+    Server(@NotNull OnStateChangeListener onStateChangeListener)
     {
-        this.handler = handler;
+        this.onStateChangeListener = onStateChangeListener;
     }
 
     void start(final String ipString, final String portString) {
@@ -39,14 +41,13 @@ class Server {
             public void run() {
                 try {
                     port = Integer.parseInt(portString);
-                    ip = InetAddress.getByName(ipString);
                     socket = new MulticastSocket(port);
+                    ip = InetAddress.getByName(ipString);
                     socket.setLoopbackMode(/*disabled=*/ true);
                     socket.joinGroup(ip);
 
                     Log.d(TAG, "started");
-                    if (handler != null)
-                        handler.onServerStarted();
+                    onStateChangeListener.onServerStarted();
 
                     // Read
                     while (!socket.isClosed())
@@ -57,37 +58,40 @@ class Server {
                     }
 
                 } catch (IOException | NumberFormatException e) {
-                    e.printStackTrace();
-                    if (handler != null) {
-                        handler.onServerError(e.toString());
-                    }
+                    if (isRunning())
+                        onStateChangeListener.onServerError(e.toString());
                 }
             }
         });
         connectionThread.start();
+        Log.d(TAG, "started");
     }
 
-    public void stop() {
-
+    void stop() {
         if (socket != null) {
             socket.close();
         }
 
-        if (Thread.currentThread() != connectionThread) {
+        if (connectionThread != null && Thread.currentThread() != connectionThread) {
             try {
                 connectionThread.join();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
+        Log.d(TAG, "stopped");
     }
 
     private void handleSnack(DatagramPacket packet) {
     }
 
-    public void sendData(byte[] data) {
+    boolean isRunning()
+    {
+        return socket != null && !socket.isClosed();
+    }
 
-        if (socket != null)
+    public void sendData(byte[] data) {
+        if (isRunning())
         {
             DatagramPacket packet = new DatagramPacket(data, data.length, ip, port);
             try {

@@ -43,8 +43,8 @@ public class Camera {
      * The MIME type for the video mEncoder
      */
     private static final String MIME_TYPE = "video/avc";
-    private static final int WIDTH = 1920;
-    private static final int HEIGHT = 1080;
+    private static final int WIDTH = 1280;
+    private static final int HEIGHT = 720;
     private static final int BIT_RATE = 2000000;
     private static final int FRAME_RATE = 30;
     private static final int I_FRAME_INTERVAL = 1;
@@ -140,7 +140,7 @@ public class Camera {
     }
 
     public void start(CameraManager manager) throws IOException {
-        createEncoder();
+        startEncoder();
         startBackgroundThread();
         openCamera(manager);
     }
@@ -148,10 +148,10 @@ public class Camera {
     public void stop() {
         closeCamera();
         stopBackgroundThread();
-        destroyEncoder();
+        stopEncoder();
     }
 
-    private void createEncoder() throws IOException {
+    private void startEncoder() throws IOException {
         MediaFormat format =
                 MediaFormat.createVideoFormat(MIME_TYPE, WIDTH, HEIGHT);
         format.setInteger(MediaFormat.KEY_COLOR_FORMAT,
@@ -166,7 +166,9 @@ public class Camera {
         mEncoder = MediaCodec.createEncoderByType(MIME_TYPE);
         mEncoder.configure(format, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
         mSurface = mEncoder.createInputSurface();
+        mEncoder.start();
         mEncoderThread = new Thread(drainEncoder);
+        mEncoderThread.start();
     }
 
     /**
@@ -203,6 +205,7 @@ public class Camera {
      * Closes the current {@link CameraDevice}.
      */
     private void closeCamera() {
+        Log.d(TAG, "closeCamera");
         try {
             mCameraOpenCloseLock.acquire();
             if (null != mCaptureSession) {
@@ -211,8 +214,8 @@ public class Camera {
             }
             if (null != mCameraDevice) {
                 mCameraDevice.close();
-                mCameraDevice = null;
             }
+            mCameraDevice = null;
 
             if (mSurface != null)
             {
@@ -231,6 +234,10 @@ public class Camera {
      * Stops the background thread and its {@link Handler}.
      */
     private void stopBackgroundThread() {
+        Log.d(TAG, "stopBackgroundThread");
+        if (mBackgroundThread == null)
+            return;
+
         mBackgroundThread.quitSafely();
         try {
             mBackgroundThread.join();
@@ -241,10 +248,11 @@ public class Camera {
         }
     }
 
-    private void destroyEncoder() {
+    private void stopEncoder() {
+        Log.d(TAG, "stopEncoder");
         if (mEncoder != null) {
+            // Signal end of stream
             mEncoder.signalEndOfInputStream();
-
             try {
                 mEncoderThread.join();
             } catch (InterruptedException e) {
@@ -267,51 +275,52 @@ public class Camera {
      * Creates a new {@link CameraCaptureSession} for camera preview.
      */
     private void createCameraCaptureSession() throws CameraAccessException {
-        // We set up a CaptureRequest.Builder with the output Surface.
-        mCaptureRequestBuilder = mCameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_RECORD);
-        mCaptureRequestBuilder.addTarget(mSurface);
-        mCaptureRequestBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
+        if (mCameraOpenCloseLock.tryAcquire()) {
+            // We set up a CaptureRequest.Builder with the output Surface.
+            mCaptureRequestBuilder = mCameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_RECORD);
+            mCaptureRequestBuilder.addTarget(mSurface);
+            mCaptureRequestBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
 
-        // Here, we create a CameraCaptureSession for camera preview.
-        mCameraDevice.createCaptureSession(Collections.singletonList(mSurface),
-                new CameraCaptureSession.StateCallback() {
+            // Here, we create a CameraCaptureSession for camera preview.
+            mCameraDevice.createCaptureSession(Collections.singletonList(mSurface),
+                    new CameraCaptureSession.StateCallback() {
 
-                    @Override
-                    public void onConfigured(@NonNull CameraCaptureSession cameraCaptureSession) {
-                        // The camera is already closed
-                        if (null == mCameraDevice) {
-                            return;
+                        @Override
+                        public void onConfigured(@NonNull CameraCaptureSession cameraCaptureSession) {
+                            // The camera is already closed
+                            if (null == mCameraDevice) {
+                                return;
+                            }
+
+                            // When the session is ready, we start displaying the preview.
+                            mCaptureSession = cameraCaptureSession;
+                            try {
+                                // Auto focus should be continuous for camera preview.
+                                mCaptureRequestBuilder.set(CaptureRequest.CONTROL_AF_MODE,
+                                        CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
+
+                                // Finally, we start displaying the camera preview.
+                                mCaptureRequest = mCaptureRequestBuilder.build();
+
+                                mCaptureSession.setRepeatingRequest(mCaptureRequest, new CameraCaptureSession.CaptureCallback() {
+                                    @Override
+                                    public void onCaptureStarted(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request, long timestamp, long frameNumber) {
+                                        super.onCaptureStarted(session, request, timestamp, frameNumber);
+
+                                    }
+                                }, mBackgroundHandler);
+                            } catch (CameraAccessException e) {
+                                e.printStackTrace();
+                            }
+                            mCameraOpenCloseLock.release();
                         }
 
-                        // When the session is ready, we start displaying the preview.
-                        mCaptureSession = cameraCaptureSession;
-                        try {
-                            // Auto focus should be continuous for camera preview.
-                            mCaptureRequestBuilder.set(CaptureRequest.CONTROL_AF_MODE,
-                                    CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
-
-                            // Finally, we start displaying the camera preview.
-                            mCaptureRequest = mCaptureRequestBuilder.build();
-
-                            mCaptureSession.setRepeatingRequest(mCaptureRequest, new CameraCaptureSession.CaptureCallback()
-                            {
-                                @Override
-                                public void onCaptureStarted(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request, long timestamp, long frameNumber)
-                                {
-                                    super.onCaptureStarted(session, request, timestamp, frameNumber);
-                                    mEncoderThread.start();
-                                }
-                            }, mBackgroundHandler);
-                        } catch (CameraAccessException e) {
-                            e.printStackTrace();
+                        @Override
+                        public void onConfigureFailed(@NonNull CameraCaptureSession cameraCaptureSession) {
                         }
-                    }
-
-                    @Override
-                    public void onConfigureFailed(@NonNull CameraCaptureSession cameraCaptureSession) {
-                    }
-                }, null
-        );
+                    }, null
+            );
+        }
     }
 
     private Runnable drainEncoder = new Runnable() {
@@ -321,13 +330,15 @@ public class Camera {
             while (true) {
                 int encoderStatus = mEncoder.dequeueOutputBuffer(bufferInfo, 10000);
                 if (encoderStatus == MediaCodec.INFO_TRY_AGAIN_LATER) {
-                    Log.d(TAG, "no output available, spinning");
+                    Log.i(TAG, "no output available, spinning");
+                    bufferInfo = new MediaCodec.BufferInfo();
                 } else if (encoderStatus == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
                     MediaFormat newFormat = mEncoder.getOutputFormat();
                     Log.d(TAG, "output format changed");
                 } else if (encoderStatus < 0) {
                     Log.w(TAG, "unexpected result from mEncoder.dequeueOutputBuffer: " + encoderStatus);
                 } else {
+                    Log.i(TAG, "output available");
                     // Normal flow: get output encoded buffer, send to VideoDataCallback
                     ByteBuffer videoData = mEncoder.getOutputBuffer(encoderStatus);
                     assert videoData != null;
@@ -351,7 +362,7 @@ public class Camera {
                     mEncoder.releaseOutputBuffer(encoderStatus, false);
                     if ((bufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) {
                         onDataListener.onFinish();
-                        break;
+                        return;
                     }
                 }
             }
