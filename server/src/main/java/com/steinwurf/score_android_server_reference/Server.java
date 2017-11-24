@@ -2,6 +2,8 @@ package com.steinwurf.score_android_server_reference;
 
 import android.util.Log;
 
+import com.steinwurf.score.source.Source;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -24,6 +26,7 @@ class Server {
 
     private Thread connectionThread = null;
     private MulticastSocket socket;
+    private Source source;
 
     private Integer port = null;
     private InetAddress ip = null;
@@ -34,6 +37,7 @@ class Server {
     }
 
     void start(String ipString, String portString) {
+        source = new Source();
         try {
             port = Integer.parseInt(portString);
             socket = new MulticastSocket(port);
@@ -86,16 +90,26 @@ class Server {
     }
 
     private void handleSnack(DatagramPacket packet) {
+        try {
+            source.readSnackPacket(packet.getData(), packet.getOffset(), packet.getLength());
+        } catch (Source.InvalidSnackPacketException e) {
+            e.printStackTrace();
+        }
     }
 
-    void sendData(byte[] data) {
+    void sendMessage(byte[] message) {
         if (isRunning())
         {
-            DatagramPacket packet = new DatagramPacket(data, data.length, ip, port);
-            try {
-                socket.send(packet);
-            } catch (IOException e) {
-                e.printStackTrace();
+            source.readMessage(message);
+            while(source.hasDataPacket())
+            {
+                byte[] data = source.getDataPacket();
+                DatagramPacket packet = new DatagramPacket(data, data.length, ip, port);
+                try {
+                    socket.send(packet);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }

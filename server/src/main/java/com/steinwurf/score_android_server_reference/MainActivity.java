@@ -3,11 +3,8 @@ package com.steinwurf.score_android_server_reference;
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
-import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraManager;
 import android.os.Build;
-import android.os.Handler;
-import android.os.HandlerThread;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -15,15 +12,12 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.CompoundButton;
-import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 
 public class MainActivity extends AppCompatActivity implements Server.OnStateChangeListener, Camera.OnDataListener {
 
@@ -133,10 +127,10 @@ public class MainActivity extends AppCompatActivity implements Server.OnStateCha
         byte[] data = buffer.array();
         if (isIFrame(data))
         {
-            server.sendData(camera.getSPS());
-            server.sendData(camera.getPPS());
+            server.sendMessage(camera.getSPS());
+            server.sendMessage(camera.getPPS());
         }
-        server.sendData(data);
+        server.sendMessage(data);
     }
 
     @Override

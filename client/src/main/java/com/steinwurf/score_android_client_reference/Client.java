@@ -1,5 +1,7 @@
 package com.steinwurf.score_android_client_reference;
 
+import com.steinwurf.score.sink.Sink;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -28,6 +30,7 @@ class Client {
 
     private Thread connectionThread = null;
     private MulticastSocket socket;
+    private Sink sink;
 
     Client(@NotNull OnStateChangeListener onStateChangeListener)
     {
@@ -35,6 +38,7 @@ class Client {
     }
 
     void start(final String ipString, final String portString) {
+        sink = new Sink();
         try {
             int port = Integer.parseInt(portString);
             socket = new MulticastSocket(port);
@@ -54,7 +58,10 @@ class Client {
                     {
                         DatagramPacket packet = new DatagramPacket(receiveBuffer, receiveBuffer.length);
                         socket.receive(packet);
-                        handleData(packet);
+                        handleData(ByteBuffer.wrap(
+                            packet.getData(),
+                            packet.getOffset(),
+                            packet.getLength()));
                         sendSnacks(packet.getSocketAddress());
                     }
 
@@ -88,17 +95,31 @@ class Client {
 
     private void sendSnacks(SocketAddress socketAddress) throws IOException {
         ArrayList<byte[]> snackPackets = new ArrayList<>();
+        while (sink.hasSnackPacket())
+        {
+            byte[] snackPacket = sink.getSnackPacket();
+            snackPackets.add(snackPacket);
+        }
+
         for (byte[] snackPacket : snackPackets) {
             socket.send(new DatagramPacket(snackPacket, snackPacket.length, socketAddress));
         }
     }
 
-    private void handleData(DatagramPacket packet) {
-        ByteBuffer buffer = ByteBuffer.wrap(
-                packet.getData(),
-                packet.getOffset(),
-                packet.getLength());
-        onStateChangeListener.onData(buffer);
+    private void handleData(ByteBuffer buffer) {
+        try {
+            sink.readDataPacket(buffer.array(), buffer.position(), buffer.remaining());
+        } catch (Sink.InvalidDataPacketException e) {
+            e.printStackTrace();
+        }
+        while (sink.hasMessage())
+        {
+            try {
+                byte[] message = sink.getMessage();
+                onStateChangeListener.onData(ByteBuffer.wrap(message));
+            } catch (Sink.InvalidChecksumException e) {
+                e.printStackTrace();
+            }
+        }
     }
-
 }
