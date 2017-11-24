@@ -129,8 +129,14 @@ public class MainActivity extends AppCompatActivity implements Server.OnStateCha
     }
 
     @Override
-    public void onData(ByteBuffer data) {
-        server.sendData(data.array());
+    public void onData(ByteBuffer buffer) {
+        byte[] data = buffer.array();
+        if (isIFrame(data))
+        {
+            server.sendData(camera.getSPS());
+            server.sendData(camera.getPPS());
+        }
+        server.sendData(data);
     }
 
     @Override
@@ -159,5 +165,10 @@ public class MainActivity extends AppCompatActivity implements Server.OnStateCha
                 builder.create().show();
             }
         }
+    }
+
+    private boolean isIFrame(byte[] data)
+    {
+        return (data.length > 5 && data[0] == 0x00 && data[1] == 0x00 && data[2] == 0x00 && data[3] == 0x01 && (data[4] & 0x1F) == 5);
     }
 }

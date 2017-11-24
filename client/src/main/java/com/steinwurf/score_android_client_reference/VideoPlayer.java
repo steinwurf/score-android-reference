@@ -10,6 +10,8 @@ import com.steinwurf.mediaplayer.VideoDecoder;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
+
 public class VideoPlayer implements TextureView.SurfaceTextureListener
 {
     private static final String TAG = VideoPlayer.class.getSimpleName();
@@ -23,7 +25,7 @@ public class VideoPlayer implements TextureView.SurfaceTextureListener
     private SampleStorage mSampleStorage;
     private Long mFirstTimeStamp = null;
 
-    public boolean start(int width, int height, byte[] sps, byte[] pps) {
+    public boolean start(int width, int height, byte[] sps, byte[] pps) throws IOException {
         Log.d(TAG, "start");
         synchronized (mVideoDecoderLock)
         {
@@ -86,8 +88,13 @@ public class VideoPlayer implements TextureView.SurfaceTextureListener
             if (mVideoDecoder != null)
             {
                 mVideoDecoder.setSurface(mSurface);
-                mVideoDecoder.start();
-                Log.d(TAG, "video decoder started");
+                try {
+                    mVideoDecoder.start();
+                    Log.d(TAG, "video decoder started");
+                } catch (IOException e) {
+                    mVideoDecoder = null;
+                    e.printStackTrace();
+                }
             }
         }
     }

@@ -44,7 +44,7 @@ class Camera {
     private static final String MIME_TYPE = "video/avc";
     private static final int WIDTH = 1280;
     private static final int HEIGHT = 720;
-    private static final int BIT_RATE = 2000000;
+    private static final int BIT_RATE = 4000000;
     private static final int FRAME_RATE = 30;
     private static final int I_FRAME_INTERVAL = 1;
     private final OnDataListener onDataListener;
@@ -63,11 +63,6 @@ class Camera {
      * A reference to the opened {@link CameraDevice}.
      */
     private CameraDevice mCameraDevice;
-
-    /**
-     * The {@link android.util.Size} of camera preview.
-     */
-    private Size mSize;
 
     /**
      * {@link CameraDevice.StateCallback} is called when {@link CameraDevice} changes its state.
@@ -123,6 +118,9 @@ class Camera {
      */
     private Surface mSurface;
 
+    private byte[] mSPS = null;
+    private byte[] mPPS = null;
+
     /**
      * A {@link Semaphore} to prevent the app from exiting before closing the camera.
      */
@@ -143,6 +141,16 @@ class Camera {
         closeCamera();
         mBackgroundHandler.stop();
         stopEncoder();
+    }
+
+    byte[] getSPS()
+    {
+        return mSPS;
+    }
+
+    byte[] getPPS()
+    {
+        return mPPS;
     }
 
     private void startEncoder() throws IOException {
@@ -299,6 +307,8 @@ class Camera {
                     bufferInfo = new MediaCodec.BufferInfo();
                 } else if (encoderStatus == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
                     MediaFormat newFormat = mEncoder.getOutputFormat();
+                    mSPS = newFormat.getByteBuffer("csd-0").array();
+                    mPPS = newFormat.getByteBuffer("csd-1").array();
 //                    Log.d(TAG, "output format changed");
                 } else if (encoderStatus >= 0) {
 //                    Log.i(TAG, "output available");
@@ -318,8 +328,8 @@ class Camera {
                         videoData.limit(bufferInfo.offset + bufferInfo.size);
                         ByteBuffer data = ByteBuffer.allocate(bufferInfo.size + Long.SIZE / Byte.SIZE);
                         data.order(ByteOrder.BIG_ENDIAN);
-                        data.putLong(bufferInfo.presentationTimeUs);
                         data.put(videoData);
+                        data.putLong(bufferInfo.presentationTimeUs);
                         onDataListener.onData(data);
                     }
                     mEncoder.releaseOutputBuffer(encoderStatus, false);

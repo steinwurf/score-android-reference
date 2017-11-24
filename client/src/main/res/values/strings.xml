@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">score-android-reference</string>
+    <string name="app_name">client</string>
     <string name="start">Start</string>
     <string name="stop">Stop</string>
 </resources>

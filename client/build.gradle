@@ -29,5 +29,5 @@ dependencies {
     implementation 'org.jetbrains:annotations-java5:15.0'
     
     implementation 'com.steinwurf.score:sink:1.0.0'
-    implementation 'com.steinwurf.mediaplayer:mediaplayer:5.0.0'
+    implementation 'com.steinwurf.mediaplayer:mediaplayer:6.0.0'
 }

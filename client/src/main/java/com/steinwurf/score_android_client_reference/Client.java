@@ -4,8 +4,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.net.NetworkInterface;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -20,7 +22,7 @@ class Client {
         void onData(ByteBuffer data);
     }
 
-    private final byte[] receiveBuffer = new byte[4096];
+    private final byte[] receiveBuffer = new byte[64*1024];
 
     private final OnStateChangeListener onStateChangeListener;
 
