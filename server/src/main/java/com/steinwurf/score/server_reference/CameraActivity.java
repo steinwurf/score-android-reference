@@ -107,15 +107,10 @@ public class CameraActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-        camera.stop();
-        server.stop();
-    }
-
-    @Override
     protected void onDestroy() {
         super.onDestroy();
+        camera.stop();
+        server.stop();
         backgroundHandler.stop();
     }
 

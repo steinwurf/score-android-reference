@@ -42,13 +42,13 @@ public class ScreenCaptureActivity extends AppCompatActivity {
 
         startStopToggleButton = findViewById(R.id.startStopToggleButton);
         mMediaProjectionManager = (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE);
+        backgroundHandler.start();
 
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        backgroundHandler.start();
         startStopToggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(final CompoundButton buttonView, boolean isChecked) {
@@ -79,8 +79,8 @@ public class ScreenCaptureActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
+    protected void onDestroy() {
+        super.onDestroy();
         screenRecorder.stop();
         server.stop();
         backgroundHandler.stop();
