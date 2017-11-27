@@ -1,4 +1,4 @@
-package com.steinwurf.score_android_client_reference;
+package com.steinwurf.score.server_reference;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("com.steinwurf.score_android_reference", appContext.getPackageName());
+        assertEquals("com.steinwurf.score.server_reference", appContext.getPackageName());
     }
 }

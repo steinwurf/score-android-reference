@@ -1,4 +1,4 @@
-package com.steinwurf.score_android_client_reference;
+package com.steinwurf.score.client_reference;
 
 import android.content.Context;
 import android.graphics.Point;
@@ -16,6 +16,7 @@ import android.widget.ToggleButton;
 import com.steinwurf.mediaplayer.Utils;
 import com.steinwurf.score.shared.BackgroundHandler;
 import com.steinwurf.score.shared.NaluType;
+import com.steinwurf.score_android_client_reference.R;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

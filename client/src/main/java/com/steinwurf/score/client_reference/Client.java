@@ -1,4 +1,4 @@
-package com.steinwurf.score_android_client_reference;
+package com.steinwurf.score.client_reference;
 
 import com.steinwurf.score.shared.BackgroundHandler;
 import com.steinwurf.score.sink.Sink;

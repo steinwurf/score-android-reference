@@ -1,6 +1,5 @@
-package com.steinwurf.score_android_server_reference;
+package com.steinwurf.score.server_reference;
 
-import android.hardware.camera2.CameraManager;
 import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
@@ -11,8 +10,6 @@ import android.view.Surface;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-
-import static android.media.MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_CBR;
 
 class VideoEncoder {
 

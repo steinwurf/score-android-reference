@@ -1,4 +1,4 @@
-package com.steinwurf.score_android_server_reference;
+package com.steinwurf.score.server_reference;
 
 import com.steinwurf.score.shared.BackgroundHandler;
 import com.steinwurf.score.source.Source;

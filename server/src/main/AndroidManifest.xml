@@ -12,7 +12,7 @@
         android:allowBackup="true"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ScreenCaptureActivity"
+        <activity android:name="com.steinwurf.score.server_reference.ScreenCaptureActivity"
             android:taskAffinity=".ScreenCaptureActivity"
             android:icon="@mipmap/ic_launcher1"
             android:roundIcon="@mipmap/ic_launcher1_round"
@@ -23,7 +23,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".CameraActivity"
+        <activity android:name="com.steinwurf.score.server_reference.CameraActivity"
             android:taskAffinity=".CameraActivity"
             android:icon="@mipmap/ic_launcher2"
             android:roundIcon="@mipmap/ic_launcher2_round"

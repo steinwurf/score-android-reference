@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".ScreenCaptureActivity">
+    tools:context="com.steinwurf.score.server_reference.ScreenCaptureActivity">
 
     <ToggleButton
         android:id="@+id/startStopToggleButton"

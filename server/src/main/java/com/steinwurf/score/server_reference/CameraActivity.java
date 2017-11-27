@@ -1,4 +1,4 @@
-package com.steinwurf.score_android_server_reference;
+package com.steinwurf.score.server_reference;
 
 import android.Manifest;
 import android.content.DialogInterface;
@@ -16,6 +16,8 @@ import android.widget.CompoundButton;
 import android.widget.ToggleButton;
 
 import com.steinwurf.score.shared.BackgroundHandler;
+import com.steinwurf.score.shared.NaluType;
+import com.steinwurf.score_android_server_reference.R;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -151,7 +153,7 @@ public class CameraActivity extends AppCompatActivity {
         @Override
         public void onData(ByteBuffer buffer) {
             byte[] data = buffer.array();
-            if (isIFrame(data)) {
+            if (NaluType.parse(data) == NaluType.IdrSlice) {
                 server.sendMessage(videoEncoder.getSPS());
                 server.sendMessage(videoEncoder.getPPS());
             }
@@ -161,16 +163,6 @@ public class CameraActivity extends AppCompatActivity {
         @Override
         public void onFinish() {
             Log.d(TAG, "EOS");
-        }
-
-        private boolean isIFrame(byte[] data)
-        {
-            return (data.length > 5 &&
-                    data[0] == 0x00 &&
-                    data[1] == 0x00 &&
-                    data[2] == 0x00 &&
-                    data[3] == 0x01 &&
-                    (data[4] & 0x1F) == 5);
         }
     }
 }

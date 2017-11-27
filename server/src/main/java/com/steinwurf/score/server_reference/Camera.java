@@ -1,4 +1,4 @@
-package com.steinwurf.score_android_server_reference;
+package com.steinwurf.score.server_reference;
 
 import android.annotation.SuppressLint;
 import android.hardware.camera2.CameraAccessException;
@@ -7,19 +7,14 @@ import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureRequest;
-import android.media.MediaCodec;
-import android.media.MediaCodecInfo;
-import android.media.MediaFormat;
-import android.os.Build;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.util.Log;
-import android.util.Size;
 import android.view.Surface;
 
+import com.steinwurf.score.shared.BackgroundHandler;
+
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.Collections;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;

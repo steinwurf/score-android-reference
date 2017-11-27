@@ -1,4 +1,4 @@
-package com.steinwurf.score_android_server_reference;
+package com.steinwurf.score.client_reference;
 
 import org.junit.Test;
 
