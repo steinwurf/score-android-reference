@@ -1,12 +1,12 @@
-package com.steinwurf.score_android_client_reference;
+package com.steinwurf.score.shared;
 
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 
-class BackgroundHandler {
+public class BackgroundHandler {
 
-    interface OnPostFinishedListener {
+    public interface OnPostFinishedListener {
         void finished();
     }
 
@@ -24,13 +24,13 @@ class BackgroundHandler {
     /**
      * Starts a background thread and its {@link Handler}.
      */
-    void start() {
+    public void start() {
         mBackgroundThread = new HandlerThread(TAG);
         mBackgroundThread.start();
         mBackgroundHandler = new Handler(mBackgroundThread.getLooper());
     }
 
-    void post(final Runnable runnable, final OnPostFinishedListener onPostFinishedListener)
+    public void post(final Runnable runnable, final OnPostFinishedListener onPostFinishedListener)
     {
         if (mBackgroundHandler == null)
             throw new IllegalStateException();
@@ -43,14 +43,14 @@ class BackgroundHandler {
         });
     }
 
-    void post(Runnable runnable)
+    public void post(Runnable runnable)
     {
         if (mBackgroundHandler == null)
             throw new IllegalStateException();
         mBackgroundHandler.post(runnable);
     }
 
-    Handler getHandler()
+    public Handler getHandler()
     {
         if (mBackgroundHandler == null)
             throw new IllegalStateException();
@@ -60,7 +60,7 @@ class BackgroundHandler {
     /**
      * Stops the background thread and its {@link Handler}.
      */
-    void stop() {
+    public void stop() {
         if (mBackgroundThread == null)
             return;
 

@@ -1,5 +1,6 @@
 package com.steinwurf.score_android_server_reference;
 
+import com.steinwurf.score.shared.BackgroundHandler;
 import com.steinwurf.score.source.Source;
 
 import org.jetbrains.annotations.NotNull;
@@ -18,7 +19,7 @@ class Server {
         void onError(String reason);
     }
 
-    private final byte[] receiveBuffer = new byte[4096];
+    private final byte[] receiveBuffer = new byte[64*1024];
 
     final private OnStateChangeListener onStateChangeListener;
 

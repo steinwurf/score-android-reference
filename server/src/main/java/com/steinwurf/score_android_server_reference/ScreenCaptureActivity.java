@@ -10,6 +10,8 @@ import android.widget.CompoundButton;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.steinwurf.score.shared.BackgroundHandler;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 

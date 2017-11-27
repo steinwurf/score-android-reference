@@ -1,5 +1,6 @@
 package com.steinwurf.score_android_client_reference;
 
+import com.steinwurf.score.shared.BackgroundHandler;
 import com.steinwurf.score.sink.Sink;
 
 import org.jetbrains.annotations.NotNull;

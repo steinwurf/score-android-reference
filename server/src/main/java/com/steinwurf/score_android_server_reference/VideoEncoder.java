@@ -16,8 +16,6 @@ import static android.media.MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_CBR;
 
 class VideoEncoder {
 
-    private Thread mEncoderThread;
-
     public interface OnDataListener {
         void onData(ByteBuffer data);
         void onFinish();
@@ -43,6 +41,11 @@ class VideoEncoder {
      * Encoder for encoding the data from the surface
      */
     private MediaCodec mEncoder;
+
+    /**
+     * Thread handling the encoding
+     */
+    private Thread mEncoderThread;
 
     /**
      * The encoder's input surface
@@ -104,11 +107,15 @@ class VideoEncoder {
 
     byte[] getSPS()
     {
+        if (mSPS == null)
+            throw new IllegalStateException("Must be called after first call to onData has been performed");
         return mSPS;
     }
 
     byte[] getPPS()
     {
+        if (mPPS == null)
+            throw new IllegalStateException("Must be called after first call to onData has been performed");
         return mPPS;
     }
 

@@ -1,4 +1,4 @@
-package com.steinwurf.score_android_client_reference;
+package com.steinwurf.score.shared;
 
 public enum NaluType {
 
@@ -37,7 +37,7 @@ public enum NaluType {
         Unknown;
 
 
-    static NaluType parse(byte[] data)
+    public static NaluType parse(byte[] data)
     {
         if (data.length < 5)
             throw new IllegalArgumentException("Buffer too short");

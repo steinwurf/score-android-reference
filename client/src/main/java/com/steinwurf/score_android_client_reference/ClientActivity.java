@@ -14,6 +14,8 @@ import android.widget.CompoundButton;
 import android.widget.ToggleButton;
 
 import com.steinwurf.mediaplayer.Utils;
+import com.steinwurf.score.shared.BackgroundHandler;
+import com.steinwurf.score.shared.NaluType;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
