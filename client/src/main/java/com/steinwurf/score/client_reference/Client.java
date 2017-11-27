@@ -13,29 +13,61 @@ import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
+/**
+ * Client for handling incoming score packets
+ */
 class Client {
 
     private static final String TAG = Client.class.getSimpleName();
 
-    interface OnStateChangeListener
+    /**
+     * Interface for managing the various events
+     */
+    interface OnEventListener
     {
         void onError(String reason);
         void onData(ByteBuffer data);
     }
 
+    /**
+     * Buffer for holding the incoming data packets
+     */
     private final byte[] receiveBuffer = new byte[64*1024];
 
-    private final OnStateChangeListener onStateChangeListener;
+    /**
+     * The event listener
+     */
+    private final OnEventListener onEventListener;
 
+    /**
+     * Handler for the work to be done in the background
+     */
     private final BackgroundHandler backgroundHandler = new BackgroundHandler();
+
+    /**
+     * The multicast socket used for receiving multicast packets
+     */
     private MulticastSocket socket;
+
+    /**
+     * The score sink which transforms data packets into messages
+     */
     private Sink sink;
 
-    Client(@NotNull OnStateChangeListener onStateChangeListener)
+    /**
+     * Construct a Client
+     * @param onEventListener The event listener for handling the events caused by this Client
+     */
+    Client(@NotNull OnEventListener onEventListener)
     {
-        this.onStateChangeListener = onStateChangeListener;
+        this.onEventListener = onEventListener;
     }
 
+    /**
+     * Start the client and connect to the given ip and port
+     * @param ipString The ip to listen to.
+     * @param portString The port to listen to.
+     */
     void start(final String ipString, final String portString) {
         sink = new Sink();
         try {
@@ -64,12 +96,15 @@ class Client {
                         backgroundHandler.post(this);
                 } catch (IOException | NumberFormatException e) {
                     if (isRunning())
-                        onStateChangeListener.onError(e.toString());
+                        onEventListener.onError(e.toString());
                 }
             }
         });
     }
 
+    /**
+     * Stop the client.
+     */
     void stop() {
         if (socket != null) {
             socket.close();
@@ -77,11 +112,20 @@ class Client {
         backgroundHandler.stop();
     }
 
+    /**
+     * Determine if the client's socket is available and open
+     * @return if the client's socket is open true, otherwise false
+     */
     private boolean isRunning()
     {
         return socket != null && !socket.isClosed();
     }
 
+    /**
+     * Send the Score sink's snack packets, if any.
+     * @param socketAddress The address to send the snack packets to.
+     * @throws IOException Throws if the socket was unable to send a snack packet.
+     */
     private void sendSnacks(SocketAddress socketAddress) throws IOException {
         ArrayList<byte[]> snackPackets = new ArrayList<>();
         while (sink.hasSnackPacket())
@@ -95,6 +139,11 @@ class Client {
         }
     }
 
+    /**
+     * Handle an incoming data packet by feeding it to the sink. If this causes a message to become
+     * available the {@link Client.OnEventListener#onData(ByteBuffer)} is triggered.
+     * @param buffer the data packet.
+     */
     private void handleData(ByteBuffer buffer) {
         try {
             sink.readDataPacket(buffer.array(), buffer.position(), buffer.remaining());
@@ -105,7 +154,7 @@ class Client {
         {
             try {
                 byte[] message = sink.getMessage();
-                onStateChangeListener.onData(ByteBuffer.wrap(message));
+                onEventListener.onData(ByteBuffer.wrap(message));
             } catch (Sink.InvalidChecksumException e) {
                 e.printStackTrace();
             }

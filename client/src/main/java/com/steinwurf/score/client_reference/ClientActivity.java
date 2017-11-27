@@ -27,23 +27,69 @@ public class ClientActivity extends AppCompatActivity {
 
     private static final String TAG = ClientActivity.class.getSimpleName();
 
+    /**
+     * Hardcoded IP string
+     */
     private static final String ipString = "224.0.0.251";
+
+    /**
+     * Hardcoded Port string
+     */
     private static final String portString = "9810";
+
+    /**
+     * Hardcoded width of the incoming stream
+     */
     private static final int WIDTH = 1280;
+
+    /**
+     * Hardcoded height of the incoming stream
+     */
     private static final int HEIGHT = 720;
 
-    private final Client client = new Client(new ClientOnStateChangeListener());
+    /**
+     * The client
+     */
+    private final Client client = new Client(new ClientOnEventListener());
+    /**
+     * The video player for playing the incoming video data.
+     */
     private final VideoPlayer videoPlayer = new VideoPlayer(new VideoPlayerVideoEventListener());
 
+    /**
+     * The background handler for handling work in the background
+     */
     private final BackgroundHandler backgroundHandler = new BackgroundHandler();
 
+    /**
+     * The keep alive handler which prevents the device's wifi from sleeping
+     */
     private KeepAlive keepAlive;
 
+    /**
+     * The sps buffer
+     */
     byte[] sps = null;
+
+    /**
+     * The pps buffer
+     */
     byte[] pps = null;
 
+
+    /**
+     * The button for starting and stopping the client
+     */
     private ToggleButton startStopToggleButton;
+
+    /**
+     * The view used for showing the video
+     */
     private TextureView videoTextureView;
+
+    /**
+     * The view which covers the screen if no stream is playing
+     */
     private View lookingForSeverLinearLayout;
 
 
@@ -117,6 +163,9 @@ public class ClientActivity extends AppCompatActivity {
             keepAlive.stop();
     }
 
+    /**
+     * Hides the UI of the application
+     */
     private void hideUI()
     {
         int visibility = View.SYSTEM_UI_FLAG_LAYOUT_STABLE
@@ -133,8 +182,10 @@ public class ClientActivity extends AppCompatActivity {
         findViewById(R.id.activity_main).setSystemUiVisibility(visibility);
     }
 
-
-    private class ClientOnStateChangeListener implements Client.OnStateChangeListener {
+    /**
+     * Class for handling the client's events.
+     */
+    private class ClientOnEventListener implements Client.OnEventListener {
 
         @Override
         public void onError(String reason) {
@@ -148,6 +199,7 @@ public class ClientActivity extends AppCompatActivity {
             if (NaluType.parse(data) == NaluType.SequenceParameterSet) {
                 if (sps == null) {
                     Log.d(TAG, "Got sps");
+                    // store the sps
                     sps = data.clone();
                 }
                 return;
@@ -156,12 +208,14 @@ public class ClientActivity extends AppCompatActivity {
             if (NaluType.parse(data) == NaluType.PictureParameterSet) {
                 if (pps == null) {
                     Log.d(TAG, "Got pps");
+                    // store the pps
                     pps = data.clone();
                 }
                 return;
             }
 
             if (videoPlayer.isRunning()) {
+                // The video is running so we can feed data to it
                 buffer.order(ByteOrder.BIG_ENDIAN);
                 buffer.position(buffer.remaining() - Long.SIZE / Byte.SIZE);
                 byte[] slice = Arrays.copyOfRange(data, 0, buffer.position());
@@ -169,6 +223,7 @@ public class ClientActivity extends AppCompatActivity {
                 videoPlayer.handleData(presentationTimeUs, slice);
             } else if (pps != null && sps != null) {
                 Log.d(TAG, "Starting video player");
+                // We have both the sps and pps which means we are ready to start the playback.
                 runOnUiThread(new Runnable()
                 {
                     @Override
@@ -192,6 +247,9 @@ public class ClientActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Class for handling the video players events.
+     */
     private class VideoPlayerVideoEventListener implements VideoPlayer.VideoEventListener {
 
         @Override
@@ -203,6 +261,7 @@ public class ClientActivity extends AppCompatActivity {
                 @Override
                 public void run()
                 {
+                    // The video is available - hide the overlay!
                     lookingForSeverLinearLayout.setVisibility(View.GONE);
                 }
             });

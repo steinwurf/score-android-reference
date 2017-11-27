@@ -25,17 +25,45 @@ import java.nio.ByteBuffer;
 public class CameraActivity extends AppCompatActivity {
 
     private static final String TAG = CameraActivity.class.getSimpleName();
+
+    /**
+     * Permission request for for using the camera
+     */
     private static final int REQUEST_PERMISSIONS = 1;
 
+    /**
+     * Hardcoded IP string
+     */
     private static final String ipString = "224.0.0.251";
+
+    /**
+     * Hardcoded Port string
+     */
     private static final String portString = "9810";
 
-    private final Server server = new Server(new ServerOnStateChangeListener());
+    /**
+     * The server
+     */
+    private final Server server = new Server(new ServerOnEventListener());
+
+    /**
+     * The video encoder which feeds the server
+     */
     private final VideoEncoder videoEncoder = new VideoEncoder (new VideoEncoderOnDataListener());
+
+    /**
+     * The camera which feeds the video encoder
+     */
     private final Camera camera = new Camera(videoEncoder);
 
+    /**
+     * The background handler for handling work in the background
+     */
     private final BackgroundHandler backgroundHandler = new BackgroundHandler();
 
+    /**
+     * The button for starting and stopping the client
+     */
     private ToggleButton startStopToggleButton;
 
     @Override
@@ -136,13 +164,19 @@ public class CameraActivity extends AppCompatActivity {
         }
     }
 
-    private class ServerOnStateChangeListener implements Server.OnStateChangeListener {
+    /**
+     * Class for handling the server's events.
+     */
+    private class ServerOnEventListener implements Server.OnEventListener {
         @Override
         public void onError(String reason) {
             Log.d(TAG, reason);
         }
     }
 
+    /**
+     * Class for handling when the encoder has new data to feed to the server
+     */
     private class VideoEncoderOnDataListener implements VideoEncoder.OnDataListener {
 
         @Override

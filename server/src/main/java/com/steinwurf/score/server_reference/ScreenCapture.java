@@ -14,8 +14,19 @@ class ScreenCapture {
      */
     private static final String TAG = ScreenCapture.class.getSimpleName();
 
+    /**
+     * Hardcoded width of the outgoing stream
+     */
     private static final int WIDTH = 1280;
+
+    /**
+     * Hardcoded height of the outgoing stream
+     */
     private static final int HEIGHT = 720;
+
+    /**
+     * Hardcoded density of the outgoing stream
+     */
     private static final int DENSITY = 100;
 
     /**
@@ -23,28 +34,37 @@ class ScreenCapture {
      */
     private final VideoEncoder videoEncoder;
 
+    /**
+     * MediaProjection object for handling the screen capture
+     */
     private MediaProjection mMediaProjection;
+
+    /**
+     * The virtual display writing the data to the encoder's input surface
+     */
     private VirtualDisplay mVirtualDisplay;
 
+    /**
+     * Creates a screen capture object
+     * @param videoEncoder the video encoder to use for the video encoding.
+     */
     ScreenCapture(VideoEncoder videoEncoder)
     {
         this.videoEncoder = videoEncoder;
     }
 
+    /**
+     * Starts the screen capture.
+     * @param mediaProjection object for handling the screen capture
+     * @throws IOException Throws if the video encoder is unable to start
+     */
     void start(MediaProjection mediaProjection) throws IOException {
         if (mediaProjection == null)
             throw new IllegalArgumentException("mediaProjection must not be null");
-        mMediaProjection = mediaProjection;
+
         videoEncoder.start();
-        openMediaProjection();
-    }
 
-    void stop() {
-        closeScreenCapture();
-        videoEncoder.stop();
-    }
-
-    private void openMediaProjection() {
+        mMediaProjection = mediaProjection;
         mMediaProjection.registerCallback(new MediaProjectionCallback(), null);
         mVirtualDisplay = mMediaProjection.createVirtualDisplay(
                 TAG, WIDTH, HEIGHT, DENSITY,
@@ -53,9 +73,9 @@ class ScreenCapture {
     }
 
     /**
-     * Closes the current screen capture.
+     * Closes the screen capture
      */
-    private void closeScreenCapture() {
+    void stop() {
         if (mVirtualDisplay != null) {
             mVirtualDisplay.release();
             mVirtualDisplay = null;
@@ -65,8 +85,13 @@ class ScreenCapture {
             mMediaProjection.stop();
             mMediaProjection = null;
         }
+
+        videoEncoder.stop();
     }
 
+    /**
+     * Class for handling the the callbacks of the @link {@link MediaProjection} object.
+     */
     private class MediaProjectionCallback extends MediaProjection.Callback {
         @Override
         public void onStop() {

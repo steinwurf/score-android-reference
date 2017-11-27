@@ -119,6 +119,7 @@ class VideoEncoder {
     private Runnable drainEncoder = new Runnable() {
         @Override
         public void run() {
+
             MediaCodec.BufferInfo bufferInfo = new MediaCodec.BufferInfo();
             while (true) {
                 int encoderStatus = mEncoder.dequeueOutputBuffer(bufferInfo, 10000);

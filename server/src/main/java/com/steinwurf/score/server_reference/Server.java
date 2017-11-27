@@ -10,31 +10,70 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 
+/**
+ * Server for sending score packets
+ */
 class Server {
 
     private static final String TAG = Server.class.getSimpleName();
 
-    interface OnStateChangeListener
+    /**
+     * Interface for managing the various events
+     */
+    interface OnEventListener
     {
         void onError(String reason);
     }
 
+    /**
+     * Buffer for holding the incoming data packets
+     */
     private final byte[] receiveBuffer = new byte[64*1024];
 
-    final private OnStateChangeListener onStateChangeListener;
+    /**
+     * The event listener
+     */
+    final private OnEventListener onEventListener;
 
+    /**
+     * Handler for the work to be done in the background
+     */
     private final BackgroundHandler backgroundHandler = new BackgroundHandler();
+
+    /**
+     * The multicast socket used for sending multicast packets
+     */
     private MulticastSocket socket;
+
+    /**
+     * The score source which transforms message into data packets
+     */
     private Source source;
 
+    /**
+     * The port to send data packets to.
+     */
     private Integer port = null;
+
+    /**
+     * The IP to send data packets to.
+     */
     private InetAddress ip = null;
 
-    Server(@NotNull OnStateChangeListener onStateChangeListener)
+    /**
+     * Construct a Server
+     * @param onEventListener The event listener for handling the events caused by this Server
+     */
+    Server(@NotNull OnEventListener onEventListener)
     {
-        this.onStateChangeListener = onStateChangeListener;
+        this.onEventListener = onEventListener;
     }
 
+    /**
+     * Start the server and connect to the given ip and port
+     * @param ipString The ip to send to.
+     * @param portString The port to send to.
+     */
     void start(String ipString, String portString) {
         source = new Source();
         try {
@@ -60,13 +99,16 @@ class Server {
                         backgroundHandler.post(this);
                 } catch (IOException | NumberFormatException e) {
                     if (isRunning())
-                        onStateChangeListener.onError(e.toString());
+                        onEventListener.onError(e.toString());
                 }
 
             }
         });
     }
 
+    /**
+     * Stop the server.
+     */
     void stop() {
         if (socket != null) {
             socket.close();
@@ -75,11 +117,20 @@ class Server {
         backgroundHandler.stop();
     }
 
+    /**
+     * Determine if the server's socket is available and open
+     * @return if the server's socket is open true, otherwise false
+     */
     private boolean isRunning()
     {
         return socket != null && !socket.isClosed();
     }
 
+    /**
+     * Handle incoming snack packets. This must be done synchronously as this may change the state
+     * of the source.
+     * @param packet The snack packet to read.
+     */
     synchronized private void handleSnack(DatagramPacket packet) {
         try {
             source.readSnackPacket(packet.getData(), packet.getOffset(), packet.getLength());
@@ -88,6 +139,11 @@ class Server {
         }
     }
 
+    /**
+     * Send a given message by letting it become consumed by the source and then let it be converted
+     * to data packets.
+     * @param message The message to end to the clients.
+     */
     synchronized void sendMessage(byte[] message) {
         if (isRunning())
         {
