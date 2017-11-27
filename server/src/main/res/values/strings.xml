@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">Server</string>
+    <string name="camera_app_name">Score Camera</string>
+    <string name="screen_capture_app_name">Score Screen Capture</string>
     <string name="start">Start</string>
     <string name="stop">Stop</string>
 </resources>

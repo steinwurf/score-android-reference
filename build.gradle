@@ -17,6 +17,11 @@ buildscript {
 
 allprojects {
     repositories {
+        /*
+        flatDir{
+            dirs '../testing_libs'
+        }
+        */
         google()
         jcenter()
         maven {

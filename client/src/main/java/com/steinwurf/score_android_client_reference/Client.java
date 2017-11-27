@@ -6,10 +6,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
-import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
-import java.net.NetworkInterface;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -20,7 +18,7 @@ class Client {
 
     interface OnStateChangeListener
     {
-        void onClientError(String reason);
+        void onError(String reason);
         void onData(ByteBuffer data);
     }
 
@@ -28,7 +26,7 @@ class Client {
 
     private final OnStateChangeListener onStateChangeListener;
 
-    private Thread connectionThread = null;
+    private final BackgroundHandler backgroundHandler = new BackgroundHandler();
     private MulticastSocket socket;
     private Sink sink;
 
@@ -48,44 +46,34 @@ class Client {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        connectionThread = new Thread(new Runnable() {
+        backgroundHandler.start();
+        backgroundHandler.post(new Runnable() {
             @Override
             public void run() {
                 try {
                     // Read
-                    while(isRunning())
-                    {
-                        DatagramPacket packet = new DatagramPacket(receiveBuffer, receiveBuffer.length);
-                        socket.receive(packet);
-                        handleData(ByteBuffer.wrap(
-                            packet.getData(),
-                            packet.getOffset(),
-                            packet.getLength()));
-                        sendSnacks(packet.getSocketAddress());
-                    }
-
+                    DatagramPacket packet = new DatagramPacket(receiveBuffer, receiveBuffer.length);
+                    socket.receive(packet);
+                    handleData(ByteBuffer.wrap(
+                        packet.getData(),
+                        packet.getOffset(),
+                        packet.getLength()));
+                    sendSnacks(packet.getSocketAddress());
+                    if (isRunning())
+                        backgroundHandler.post(this);
                 } catch (IOException | NumberFormatException e) {
                     if (isRunning())
-                        onStateChangeListener.onClientError(e.toString());
+                        onStateChangeListener.onError(e.toString());
                 }
             }
         });
-        connectionThread.start();
     }
 
     void stop() {
         if (socket != null) {
             socket.close();
         }
-
-        if (connectionThread != null && Thread.currentThread() != connectionThread) {
-            try {
-                connectionThread.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+        backgroundHandler.stop();
     }
 
     private boolean isRunning()

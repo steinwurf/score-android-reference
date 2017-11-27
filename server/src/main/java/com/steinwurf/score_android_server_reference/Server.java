@@ -1,7 +1,5 @@
 package com.steinwurf.score_android_server_reference;
 
-import android.util.Log;
-
 import com.steinwurf.score.source.Source;
 
 import org.jetbrains.annotations.NotNull;
@@ -17,14 +15,14 @@ class Server {
 
     interface OnStateChangeListener
     {
-        void onServerError(String reason);
+        void onError(String reason);
     }
 
     private final byte[] receiveBuffer = new byte[4096];
 
     final private OnStateChangeListener onStateChangeListener;
 
-    private Thread connectionThread = null;
+    private final BackgroundHandler backgroundHandler = new BackgroundHandler();
     private MulticastSocket socket;
     private Source source;
 
@@ -48,26 +46,24 @@ class Server {
             e.printStackTrace();
         }
 
-        connectionThread = new Thread(new Runnable()
-        {
+        backgroundHandler.start();
+        backgroundHandler.post(new Runnable() {
             @Override
             public void run() {
                 try {
                     // Read
-                    while (isRunning())
-                    {
-                        DatagramPacket packet = new DatagramPacket(receiveBuffer, receiveBuffer.length);
-                        socket.receive(packet);
-                        handleSnack(packet);
-                    }
-
+                    DatagramPacket packet = new DatagramPacket(receiveBuffer, receiveBuffer.length);
+                    socket.receive(packet);
+                    handleSnack(packet);
+                    if (isRunning())
+                        backgroundHandler.post(this);
                 } catch (IOException | NumberFormatException e) {
                     if (isRunning())
-                        onStateChangeListener.onServerError(e.toString());
+                        onStateChangeListener.onError(e.toString());
                 }
+
             }
         });
-        connectionThread.start();
     }
 
     void stop() {
@@ -75,13 +71,7 @@ class Server {
             socket.close();
         }
 
-        if (connectionThread != null && Thread.currentThread() != connectionThread) {
-            try {
-                connectionThread.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+        backgroundHandler.stop();
     }
 
     private boolean isRunning()
@@ -89,7 +79,7 @@ class Server {
         return socket != null && !socket.isClosed();
     }
 
-    private void handleSnack(DatagramPacket packet) {
+    synchronized private void handleSnack(DatagramPacket packet) {
         try {
             source.readSnackPacket(packet.getData(), packet.getOffset(), packet.getLength());
         } catch (Source.InvalidSnackPacketException e) {
@@ -97,7 +87,7 @@ class Server {
         }
     }
 
-    void sendMessage(byte[] message) {
+    synchronized void sendMessage(byte[] message) {
         if (isRunning())
         {
             source.readMessage(message);
