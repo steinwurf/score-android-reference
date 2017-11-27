@@ -1,9 +1,20 @@
 package com.steinwurf.score.shared;
+/*-
+ * Copyright (c) 2017 Steinwurf ApS
+ * All Rights Reserved
+ *
+ * THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF STEINWURF
+ * The copyright notice above does not evidence any
+ * actual or intended publication of such source code.
+ */
 
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 
+/**
+ * A wrapper of a Handler and a Handler thread.
+ */
 public class BackgroundHandler {
 
     public interface OnPostFinishedListener {
@@ -22,7 +33,7 @@ public class BackgroundHandler {
     private Handler mBackgroundHandler;
 
     /**
-     * Starts a background thread and its {@link Handler}.
+     * Start a background thread and its {@link Handler}.
      */
     public void start() {
         mBackgroundThread = new HandlerThread(TAG);
@@ -30,6 +41,12 @@ public class BackgroundHandler {
         mBackgroundHandler = new Handler(mBackgroundThread.getLooper());
     }
 
+    /**
+     * Post a @link {@link Runnable} and have the @{@link OnPostFinishedListener} be called
+     * afterwards.
+     * @param runnable The runnable to run on the background thread.
+     * @param onPostFinishedListener The callback to call once the runnable has finished executing.
+     */
     public void post(final Runnable runnable, final OnPostFinishedListener onPostFinishedListener)
     {
         if (mBackgroundHandler == null)
@@ -43,6 +60,10 @@ public class BackgroundHandler {
         });
     }
 
+    /**
+     * Post a @link {@link Runnable} to run on the background thread.
+     * @param runnable The runnable to run on the background thread.
+     */
     public void post(Runnable runnable)
     {
         if (mBackgroundHandler == null)
@@ -50,6 +71,10 @@ public class BackgroundHandler {
         mBackgroundHandler.post(runnable);
     }
 
+    /**
+     * Get the handler. This must be called after start.
+     * @return The handler
+     */
     public Handler getHandler()
     {
         if (mBackgroundHandler == null)
@@ -58,7 +83,7 @@ public class BackgroundHandler {
     }
 
     /**
-     * Stops the background thread and its {@link Handler}.
+     * Stop the background thread and {@link Handler}.
      */
     public void stop() {
         if (mBackgroundThread == null)

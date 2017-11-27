@@ -1,4 +1,12 @@
 package com.steinwurf.score.server_reference;
+/*-
+ * Copyright (c) 2017 Steinwurf ApS
+ * All Rights Reserved
+ *
+ * THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF STEINWURF
+ * The copyright notice above does not evidence any
+ * actual or intended publication of such source code.
+ */
 
 import android.content.Intent;
 import android.media.projection.MediaProjection;
