@@ -27,6 +27,7 @@
             android:taskAffinity=".CameraActivity"
             android:icon="@mipmap/ic_launcher2"
             android:roundIcon="@mipmap/ic_launcher2_round"
+            android:screenOrientation="sensorLandscape"
             android:label="@string/camera_app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

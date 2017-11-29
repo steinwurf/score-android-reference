@@ -10,6 +10,8 @@ package com.steinwurf.score.server_reference;
 
 import com.steinwurf.score.shared.BackgroundHandler;
 import com.steinwurf.score.source.Source;
+import com.steinwurf.score.source.AutoSource;
+import com.steinwurf.score.source.InvalidSnackPacketException;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -83,7 +85,7 @@ class Server {
      * @param portString The port to send to.
      */
     void start(String ipString, String portString) {
-        source = new Source();
+        source = new AutoSource();
         try {
             port = Integer.parseInt(portString);
             socket = new MulticastSocket(port);
@@ -142,7 +144,7 @@ class Server {
     synchronized private void handleSnack(DatagramPacket packet) {
         try {
             source.readSnackPacket(packet.getData(), packet.getOffset(), packet.getLength());
-        } catch (Source.InvalidSnackPacketException e) {
+        } catch (InvalidSnackPacketException e) {
             e.printStackTrace();
         }
     }

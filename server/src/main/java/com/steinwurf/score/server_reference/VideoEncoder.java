@@ -37,7 +37,7 @@ class VideoEncoder {
     private static final String MIME_TYPE = "video/avc";
     private static final int WIDTH = 1280;
     private static final int HEIGHT = 720;
-    private static final int BIT_RATE = 4000000;
+    private static final int BIT_RATE = 1500000;
     private static final int FRAME_RATE = 30;
     private static final int I_FRAME_INTERVAL = 1;
     private final OnDataListener onDataListener;
