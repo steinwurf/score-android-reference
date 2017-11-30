@@ -59,6 +59,7 @@ public class ClientActivity extends AppCompatActivity {
      * The client
      */
     private final Client client = new Client(new ClientOnEventListener());
+
     /**
      * The video player for playing the incoming video data.
      */
@@ -187,7 +188,7 @@ public class ClientActivity extends AppCompatActivity {
             visibility |= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
         }
 
-        findViewById(R.id.activity_main).setSystemUiVisibility(visibility);
+        findViewById(R.id.mainRelativeLayout).setSystemUiVisibility(visibility);
     }
 
     /**

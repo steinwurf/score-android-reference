@@ -47,7 +47,7 @@ public class KeepAlive
         return null;
     }
 
-    public KeepAlive(InetAddress host, int port, int interval)
+    private KeepAlive(InetAddress host, int port, int interval)
     {
         this.host = host;
         this.port = port;
@@ -59,7 +59,7 @@ public class KeepAlive
         mInterval = interval;
     }
 
-    public void start()
+    void start()
     {
         Log.d(TAG, "started: " + host + ":" + port);
         mThread = new Thread(new Runnable()
@@ -92,7 +92,7 @@ public class KeepAlive
         mThread.start();
     }
 
-    public void stop()
+    void stop()
     {
         Log.d(TAG, "stopped");
         mRunning = false;

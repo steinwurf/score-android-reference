@@ -15,6 +15,7 @@ import android.view.TextureView;
 
 import com.steinwurf.mediaplayer.SampleStorage;
 import com.steinwurf.mediaplayer.VideoDecoder;
+import com.steinwurf.score.shared.NaluType;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -33,15 +34,13 @@ public class VideoPlayer implements TextureView.SurfaceTextureListener
     private SampleStorage mSampleStorage;
     private Long mFirstTimeStamp = null;
 
-    public boolean start(int width, int height, byte[] sps, byte[] pps) throws IOException {
+    void start(int width, int height, byte[] sps, byte[] pps) throws IOException {
         Log.d(TAG, "start");
         synchronized (mVideoDecoderLock)
         {
             mFirstTimeStamp = null;
             mSampleStorage = new SampleStorage();
             mVideoDecoder = VideoDecoder.build(width, height, sps, pps, mSampleStorage);
-            if (mVideoDecoder == null)
-                return false;
             if (mSurface != null)
             {
                 Log.d(TAG, "mSurface.isValid: " + mSurface.isValid());
@@ -51,7 +50,6 @@ public class VideoPlayer implements TextureView.SurfaceTextureListener
             }
         }
         mRunning = true;
-        return true;
     }
 
     public interface VideoEventListener
@@ -60,17 +58,17 @@ public class VideoPlayer implements TextureView.SurfaceTextureListener
     }
     private final VideoEventListener mVideoEventListener;
 
-    public VideoPlayer(@NotNull VideoEventListener videoEventListener)
+    VideoPlayer(@NotNull VideoEventListener videoEventListener)
     {
         mVideoEventListener = videoEventListener;
     }
 
-    public boolean isRunning()
+    boolean isRunning()
     {
         return mRunning;
     }
 
-    public void stop()
+    void stop()
     {
         Log.d(TAG, "stop");
         mRunning = false;
@@ -96,13 +94,8 @@ public class VideoPlayer implements TextureView.SurfaceTextureListener
             if (mVideoDecoder != null)
             {
                 mVideoDecoder.setSurface(mSurface);
-                try {
-                    mVideoDecoder.start();
-                    Log.d(TAG, "video decoder started");
-                } catch (IOException e) {
-                    mVideoDecoder = null;
-                    e.printStackTrace();
-                }
+                mVideoDecoder.start();
+                Log.d(TAG, "video decoder started");
             }
         }
     }
@@ -130,17 +123,14 @@ public class VideoPlayer implements TextureView.SurfaceTextureListener
         return true;
     }
 
-    public void handleData(long timestamp, byte[] sample)
+    void handleData(long timestamp, byte[] sample)
     {
         if (mWaitingForKeyframe)
         {
-            byte header = sample[3] == 0x01 ? sample[4] : sample[3];
-            int type = header & 0x1F;
-            if (type == 5)
+            if (NaluType.parse(sample) == NaluType.IdrSlice)
             {
-                // 5 is the NALU type we are looking for.
-                mWaitingForKeyframe = false;
                 Log.d(TAG, "Found keyframe!");
+                mWaitingForKeyframe = false;
                 mVideoEventListener.onKeyFrameFound();
             }
         }

@@ -22,6 +22,7 @@ public class BackgroundHandler {
     }
 
     private static final String TAG = BackgroundHandler.class.getSimpleName();
+
     /**
      * An additional thread for running tasks that shouldn't block the UI.
      */
