@@ -8,6 +8,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.0.1'
+        classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:4.4.13'
         
 
         // NOTE: Do not place your application dependencies here; they belong
@@ -15,13 +16,12 @@ buildscript {
     }
 }
 
+plugins {
+    id "com.gladed.androidgitversion" version "0.4.3"
+}
 allprojects {
+    apply plugin: "com.gladed.androidgitversion"
     repositories {
-        /*
-        flatDir{
-            dirs '../testing_libs'
-        }
-        */
         google()
         jcenter()
         maven {
@@ -34,6 +34,13 @@ allprojects {
                 password = "${artifactory_password}"
             }
         }
+    }
+    project.ext {
+        compileSdkVersion = 26
+        targetSdkVersion = 26
+    }
+    androidGitVersion {
+        format '%tag%%-commit%%-dirty%'
     }
 }
 

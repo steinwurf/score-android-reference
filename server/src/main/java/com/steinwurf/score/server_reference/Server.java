@@ -8,6 +8,9 @@ package com.steinwurf.score.server_reference;
  * actual or intended publication of such source code.
  */
 
+import android.app.ActivityManager;
+import android.util.Log;
+
 import com.steinwurf.score.shared.BackgroundHandler;
 import com.steinwurf.score.source.Source;
 import com.steinwurf.score.source.AutoSource;
@@ -85,7 +88,12 @@ class Server {
      * @param portString The port to send to.
      */
     void start(String ipString, String portString) {
-        source = new AutoSource();
+        AutoSource autoSource = new AutoSource();
+        autoSource.setSymbolSize(750);
+        autoSource.setGenerationSize(50);
+
+        source = autoSource;
+
         try {
             port = Integer.parseInt(portString);
             socket = new MulticastSocket(port);
@@ -158,15 +166,19 @@ class Server {
         if (isRunning())
         {
             source.readMessage(message);
-            while(source.hasDataPacket())
-            {
-                byte[] data = source.getDataPacket();
-                DatagramPacket packet = new DatagramPacket(data, data.length, ip, port);
-                try {
-                    socket.send(packet);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+            emptySource();
+        }
+    }
+
+    private void emptySource() {
+        while(source.hasDataPacket())
+        {
+            byte[] data = source.getDataPacket();
+            DatagramPacket packet = new DatagramPacket(data, data.length, ip, port);
+            try {
+                socket.send(packet);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
     }
