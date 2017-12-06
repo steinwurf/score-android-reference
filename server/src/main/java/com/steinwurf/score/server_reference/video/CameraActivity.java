@@ -1,4 +1,4 @@
-package com.steinwurf.score.server_reference;
+package com.steinwurf.score.server_reference.video;
 /*-
  * Copyright (c) 2017 Steinwurf ApS
  * All Rights Reserved
@@ -21,9 +21,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.ToggleButton;
 
+import com.steinwurf.score.server_reference.R;
+import com.steinwurf.score.server_reference.Server;
 import com.steinwurf.score.shared.BackgroundHandler;
 import com.steinwurf.score.shared.NaluType;
-import com.steinwurf.score_android_server_reference.R;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

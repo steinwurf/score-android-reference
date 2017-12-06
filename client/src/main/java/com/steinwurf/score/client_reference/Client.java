@@ -24,14 +24,14 @@ import java.util.ArrayList;
 /**
  * Client for handling incoming score packets
  */
-class Client {
+public class Client {
 
     private static final String TAG = Client.class.getSimpleName();
 
     /**
      * Interface for managing the various events
      */
-    interface OnEventListener
+    public interface OnEventListener
     {
         void onError(String reason);
         void onData(ByteBuffer data);
@@ -66,7 +66,7 @@ class Client {
      * Construct a Client
      * @param onEventListener The event listener for handling the events caused by this Client
      */
-    Client(@NotNull OnEventListener onEventListener)
+    public Client(@NotNull OnEventListener onEventListener)
     {
         this.onEventListener = onEventListener;
     }
@@ -76,7 +76,7 @@ class Client {
      * @param ipString The ip to listen to.
      * @param portString The port to listen to.
      */
-    void start(final String ipString, final String portString) {
+    public void start(final String ipString, final String portString) {
         sink = new Sink();
         try {
             int port = Integer.parseInt(portString);
@@ -113,7 +113,7 @@ class Client {
     /**
      * Stop the client.
      */
-    void stop() {
+    public void stop() {
         if (socket != null) {
             socket.close();
         }

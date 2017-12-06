@@ -8,11 +8,6 @@ package com.steinwurf.score.server_reference;
  * actual or intended publication of such source code.
  */
 
-import android.app.ActivityManager;
-import android.media.AudioManager;
-import android.media.ToneGenerator;
-import android.util.Log;
-
 import com.steinwurf.score.shared.BackgroundHandler;
 import com.steinwurf.score.source.Source;
 import com.steinwurf.score.source.AutoSource;
@@ -22,21 +17,20 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
-import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 
 /**
  * Server for sending score packets
  */
-class Server {
+public class Server {
 
     private static final String TAG = Server.class.getSimpleName();
 
     /**
      * Interface for managing the various events
      */
-    interface OnEventListener
+    public interface OnEventListener
     {
         void onError(String reason);
     }
@@ -80,7 +74,7 @@ class Server {
      * Construct a Server
      * @param onEventListener The event listener for handling the events caused by this Server
      */
-    Server(@NotNull OnEventListener onEventListener)
+    public Server(@NotNull OnEventListener onEventListener)
     {
         this.onEventListener = onEventListener;
     }
@@ -90,7 +84,7 @@ class Server {
      * @param ipString The ip to send to.
      * @param portString The port to send to.
      */
-    void start(String ipString, String portString) {
+    public void start(String ipString, String portString) {
         AutoSource autoSource = new AutoSource();
         autoSource.setSymbolSize(750);
         autoSource.setGenerationSize(50);
@@ -128,7 +122,7 @@ class Server {
     /**
      * Stop the server.
      */
-    void stop() {
+    public void stop() {
         if (socket != null) {
             socket.close();
         }
@@ -163,7 +157,7 @@ class Server {
      * to data packets.
      * @param message The message to end to the clients.
      */
-    synchronized void sendMessage(byte[] message) {
+    public synchronized void sendMessage(byte[] message) {
         if (isRunning())
         {
             source.readMessage(message);

@@ -28,7 +28,7 @@ public class KeepAlive
     private Thread mThread = null;
     private boolean mRunning = false;
 
-    static KeepAlive createKeepAlive(WifiManager wm, int keepAliveInterval) {
+    public static KeepAlive createKeepAlive(WifiManager wm, int keepAliveInterval) {
         try
         {
             String gatewayIP = "192.168.0.1";
@@ -59,7 +59,7 @@ public class KeepAlive
         mInterval = interval;
     }
 
-    void start()
+    public void start()
     {
         Log.d(TAG, "started: " + host + ":" + port);
         mThread = new Thread(() -> {
@@ -87,7 +87,7 @@ public class KeepAlive
         mThread.start();
     }
 
-    void stop()
+    public void stop()
     {
         Log.d(TAG, "stopped");
         mRunning = false;
