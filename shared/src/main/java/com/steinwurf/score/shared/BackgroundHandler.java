@@ -52,12 +52,9 @@ public class BackgroundHandler {
     {
         if (mBackgroundHandler == null)
             throw new IllegalStateException();
-        post(new Runnable() {
-            @Override
-            public void run() {
-                runnable.run();
-                onPostFinishedListener.finished();
-            }
+        post(() -> {
+            runnable.run();
+            onPostFinishedListener.finished();
         });
     }
 

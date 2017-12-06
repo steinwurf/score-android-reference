@@ -62,31 +62,26 @@ public class KeepAlive
     void start()
     {
         Log.d(TAG, "started: " + host + ":" + port);
-        mThread = new Thread(new Runnable()
-        {
-            @Override
-            public void run()
+        mThread = new Thread(() -> {
+            DatagramSocket socket = null;
+            try
             {
-                DatagramSocket socket = null;
-                try
-                {
-                    socket = new DatagramSocket(null);
-                    mRunning = true;
-                    while (mRunning) {
-                        byte[] buffer = {0x66};
-                        DatagramPacket out = new DatagramPacket(buffer, buffer.length, host, port);
-                        socket.send(out);
-                        Thread.sleep(mInterval);
-                    }
+                socket = new DatagramSocket(null);
+                mRunning = true;
+                while (mRunning) {
+                    byte[] buffer = {0x66};
+                    DatagramPacket out = new DatagramPacket(buffer, buffer.length, host, port);
+                    socket.send(out);
+                    Thread.sleep(mInterval);
                 }
-                catch (IOException | InterruptedException e)
-                {
-                    e.printStackTrace();
-                }
-                finally {
-                    if (socket != null)
-                        socket.close();
-                }
+            }
+            catch (IOException | InterruptedException e)
+            {
+                e.printStackTrace();
+            }
+            finally {
+                if (socket != null)
+                    socket.close();
             }
         });
         mThread.start();

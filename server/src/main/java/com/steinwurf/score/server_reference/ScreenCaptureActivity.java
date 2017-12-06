@@ -88,31 +88,15 @@ public class ScreenCaptureActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        startStopToggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(final CompoundButton buttonView, boolean isChecked) {
-                buttonView.setEnabled(false);
-                if (isChecked) {
-                    startActivityForResult(mMediaProjectionManager.createScreenCaptureIntent(), REQUEST_PERMISSIONS);
-                } else {
-                    backgroundHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            screenRecorder.stop();
-                            server.stop();
-                        }
-                    }, new BackgroundHandler.OnPostFinishedListener() {
-                        @Override
-                        public void finished() {
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    buttonView.setEnabled(true);
-                                }
-                            });
-                        }
-                    });
-                }
+        startStopToggleButton.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            buttonView.setEnabled(false);
+            if (isChecked) {
+                startActivityForResult(mMediaProjectionManager.createScreenCaptureIntent(), REQUEST_PERMISSIONS);
+            } else {
+                backgroundHandler.post(() -> {
+                    screenRecorder.stop();
+                    server.stop();
+                }, () -> runOnUiThread(() -> buttonView.setEnabled(true)));
             }
         });
     }
@@ -137,27 +121,14 @@ public class ScreenCaptureActivity extends AppCompatActivity {
             return;
         }
         final MediaProjection mediaProjection = mMediaProjectionManager.getMediaProjection(resultCode, data);
-        backgroundHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                server.start(ipString, portString);
-                try {
-                    screenRecorder.start(mediaProjection);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+        backgroundHandler.post(() -> {
+            server.start(ipString, portString);
+            try {
+                screenRecorder.start(mediaProjection);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        }, new BackgroundHandler.OnPostFinishedListener() {
-            @Override
-            public void finished() {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        startStopToggleButton.setEnabled(true);
-                    }
-                });
-            }
-        });
+        }, () -> runOnUiThread(() -> startStopToggleButton.setEnabled(true)));
     }
 
     /**

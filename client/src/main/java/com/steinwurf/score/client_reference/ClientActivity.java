@@ -9,6 +9,7 @@ package com.steinwurf.score.client_reference;
  */
 
 import android.content.Context;
+import android.graphics.Matrix;
 import android.graphics.Point;
 import android.net.wifi.WifiManager;
 import android.os.Build;
@@ -123,41 +124,21 @@ public class ClientActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        startStopToggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(final CompoundButton buttonView, boolean isChecked) {
-                buttonView.setEnabled(false);
-                BackgroundHandler.OnPostFinishedListener onPostFinishedListener = new BackgroundHandler.OnPostFinishedListener() {
-                    @Override
-                    public void finished() {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                buttonView.setEnabled(true);
-                            }
-                        });
-                    }
-                };
+        startStopToggleButton.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            buttonView.setEnabled(false);
 
-                if (isChecked) {
-                    backgroundHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            client.start(ipString, portString);
-                        }
-                    }, onPostFinishedListener);
-                } else {
-                    backgroundHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            client.stop();
-                            if (videoPlayer.isRunning())
-                                videoPlayer.stop();
-                        }
-                    }, onPostFinishedListener);
+            if (isChecked) {
+                backgroundHandler.post(
+                        () -> client.start(ipString, portString),
+                        () -> runOnUiThread(() -> buttonView.setEnabled(true)));
+            } else {
+                backgroundHandler.post(() -> {
+                    client.stop();
+                    if (videoPlayer.isRunning())
+                        videoPlayer.stop();
+                }, () -> runOnUiThread(() -> buttonView.setEnabled(true)));
 
-                    lookingForSeverLinearLayout.setVisibility(View.VISIBLE);
-                }
+                lookingForSeverLinearLayout.setVisibility(View.VISIBLE);
             }
         });
         if (keepAlive != null)
@@ -194,8 +175,8 @@ public class ClientActivity extends AppCompatActivity {
     /**
      * Class for handling the client's events.
      */
-    private class ClientOnEventListener implements Client.OnEventListener {
-
+    private class ClientOnEventListener implements Client.OnEventListener
+    {
         @Override
         public void onError(String reason) {
             Log.d(TAG, reason);
@@ -233,20 +214,9 @@ public class ClientActivity extends AppCompatActivity {
             } else if (pps != null && sps != null) {
                 Log.d(TAG, "Starting video player");
                 // We have both the sps and pps which means we are ready to start the playback.
-                runOnUiThread(new Runnable()
-                {
-                    @Override
-                    public void run()
-                    {
-                        Point displayMetrics  = Utils.getRealMetrics(ClientActivity.this);
-                        videoTextureView.setTransform(
-                                Utils.fitScale(
-                                        WIDTH,
-                                        HEIGHT,
-                                        displayMetrics.x,
-                                        displayMetrics.y).toMatrix());
-                    }
-                });
+                Point display  = Utils.getRealMetrics(getWindowManager().getDefaultDisplay());
+                Matrix matrix = Utils.fitScale(WIDTH, HEIGHT, display.x, display.y).toMatrix();
+                runOnUiThread(() -> videoTextureView.setTransform(matrix));
                 try {
                     videoPlayer.start(WIDTH, HEIGHT, sps, pps);
                 } catch (IOException e) {
@@ -265,15 +235,8 @@ public class ClientActivity extends AppCompatActivity {
         public void onKeyFrameFound() {
 
             Log.d(TAG, "onKeyFrameFound");
-            runOnUiThread(new Runnable()
-            {
-                @Override
-                public void run()
-                {
-                    // The video is available - hide the overlay!
-                    lookingForSeverLinearLayout.setVisibility(View.GONE);
-                }
-            });
+            // The video is available - hide the overlay!
+            runOnUiThread(() -> lookingForSeverLinearLayout.setVisibility(View.GONE));
         }
     }
 }

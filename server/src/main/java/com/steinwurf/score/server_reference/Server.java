@@ -9,6 +9,8 @@ package com.steinwurf.score.server_reference;
  */
 
 import android.app.ActivityManager;
+import android.media.AudioManager;
+import android.media.ToneGenerator;
 import android.util.Log;
 
 import com.steinwurf.score.shared.BackgroundHandler;
@@ -20,6 +22,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 
@@ -93,13 +96,11 @@ class Server {
         autoSource.setGenerationSize(50);
 
         source = autoSource;
+        port = Integer.parseInt(portString);
 
         try {
-            port = Integer.parseInt(portString);
             socket = new MulticastSocket(port);
             ip = InetAddress.getByName(ipString);
-            socket.setLoopbackMode(/*disabled=*/ true);
-            socket.joinGroup(ip);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -175,6 +176,7 @@ class Server {
         {
             byte[] data = source.getDataPacket();
             DatagramPacket packet = new DatagramPacket(data, data.length, ip, port);
+
             try {
                 socket.send(packet);
             } catch (IOException e) {
