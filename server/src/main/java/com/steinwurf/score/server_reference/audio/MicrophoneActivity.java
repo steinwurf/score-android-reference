@@ -18,6 +18,8 @@ import com.steinwurf.score.shared.BackgroundHandler;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.Arrays;
 
 public class MicrophoneActivity extends AppCompatActivity {
 
@@ -93,7 +95,11 @@ public class MicrophoneActivity extends AppCompatActivity {
             if (isChecked) {
                 backgroundHandler.post(() -> {
                     server.start(ipString, portString);
-                    microphone.start();
+                    try {
+                        microphone.start();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }, () -> runOnUiThread(() -> buttonView.setEnabled(true)));
             } else {
                 backgroundHandler.post(() -> {
@@ -146,10 +152,6 @@ public class MicrophoneActivity extends AppCompatActivity {
         @Override
         public void onData(ByteBuffer buffer) {
             byte[] data = buffer.array();
-
-            //server.sendMessage(audioEncoder.getSPS());
-            //server.sendMessage(audioEncoder.getPPS());
-
             server.sendMessage(data);
         }
 

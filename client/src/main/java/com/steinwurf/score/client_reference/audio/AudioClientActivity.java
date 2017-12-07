@@ -64,7 +64,7 @@ public class AudioClientActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_video_client);
+        setContentView(R.layout.activity_audio_client);
 
         WifiManager wm = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         keepAlive = KeepAlive.createKeepAlive(wm, 20);
@@ -115,20 +115,19 @@ public class AudioClientActivity extends AppCompatActivity {
 
         @Override
         public void onData(ByteBuffer buffer) {
-            byte[] data = buffer.array();
-
+            Log.d(TAG, "Starting audio player");
             buffer.order(ByteOrder.BIG_ENDIAN);
             buffer.position(buffer.remaining() - ((Long.SIZE + Integer.SIZE * 3) / Byte.SIZE));
-            byte[] slice = Arrays.copyOfRange(data, 0, buffer.position());
+            byte[] slice = Arrays.copyOfRange(buffer.array(), 0, buffer.position());
             long presentationTimeUs = buffer.getLong();
-
+            int mpegAudioObjectType = buffer.getInt();
+            int frequencyIndex = buffer.getInt();
+            int channelConfiguration = buffer.getInt();
+            Log.d(TAG, "Building " + presentationTimeUs + " " + mpegAudioObjectType + " " + frequencyIndex + " " + channelConfiguration);
             if (!audioPlayer.isRunning()) {
                 Log.d(TAG, "Starting audio player");
-                int mpegAudioObjectType = buffer.getInt();
-                int frequencyIndex = buffer.getInt();
-                int channelConfiguration = buffer.getInt();
                 audioPlayer.start(mpegAudioObjectType, frequencyIndex, channelConfiguration);
-                lookingForSeverLinearLayout.setVisibility(View.GONE);
+                runOnUiThread(() -> lookingForSeverLinearLayout.setVisibility(View.GONE));
             }
             audioPlayer.handleData(presentationTimeUs, slice);
         }

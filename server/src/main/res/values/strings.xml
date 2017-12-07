@@ -4,4 +4,5 @@
     <string name="screen_capture_app_name">Score Screen Capture</string>
     <string name="start">Start</string>
     <string name="stop">Stop</string>
+    <string name="microphone_app_name">Score Microphone</string>
 </resources>

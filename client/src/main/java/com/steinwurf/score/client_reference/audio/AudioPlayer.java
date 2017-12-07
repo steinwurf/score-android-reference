@@ -25,6 +25,7 @@ class AudioPlayer {
             {
                 if (mFirstTimeStamp == null)
                     mFirstTimeStamp = timestamp;
+                Log.d(TAG, "Handle data " + data.length);
                 mSampleStorage.addSample(timestamp - mFirstTimeStamp, data);
             }
         }
@@ -36,11 +37,14 @@ class AudioPlayer {
         {
             mFirstTimeStamp = null;
             mSampleStorage = new SampleStorage();
+            Log.d(TAG, "Building " + mpegAudioObjectType + " " + frequencyIndex + " " + channelConfiguration);
             mAudioDecoder = AudioDecoder.build(
                     mpegAudioObjectType,
                     frequencyIndex,
                     channelConfiguration,
                     mSampleStorage);
+            Log.d(TAG, "Starting");
+            mAudioDecoder.start();
         }
         mRunning = true;
     }
