@@ -88,7 +88,7 @@ public class AudioClientActivity extends AppCompatActivity {
             } else {
                 backgroundHandler.post(() -> {
                     client.stop();
-                    if (audioPlayer.isRunning())
+                    if (audioPlayer.isPlaying())
                         audioPlayer.stop();
                 }, () -> runOnUiThread(() -> buttonView.setEnabled(true)));
 
@@ -115,21 +115,11 @@ public class AudioClientActivity extends AppCompatActivity {
 
         @Override
         public void onData(ByteBuffer buffer) {
-            Log.d(TAG, "Starting audio player");
-            buffer.order(ByteOrder.BIG_ENDIAN);
-            buffer.position(buffer.remaining() - ((Long.SIZE + Integer.SIZE * 3) / Byte.SIZE));
-            byte[] slice = Arrays.copyOfRange(buffer.array(), 0, buffer.position());
-            long presentationTimeUs = buffer.getLong();
-            int mpegAudioObjectType = buffer.getInt();
-            int frequencyIndex = buffer.getInt();
-            int channelConfiguration = buffer.getInt();
-            Log.d(TAG, "Building " + presentationTimeUs + " " + mpegAudioObjectType + " " + frequencyIndex + " " + channelConfiguration);
-            if (!audioPlayer.isRunning()) {
-                Log.d(TAG, "Starting audio player");
-                audioPlayer.start(mpegAudioObjectType, frequencyIndex, channelConfiguration);
+            if (!audioPlayer.isPlaying()) {
+                audioPlayer.start();
                 runOnUiThread(() -> lookingForSeverLinearLayout.setVisibility(View.GONE));
             }
-            audioPlayer.handleData(presentationTimeUs, slice);
+            audioPlayer.handleData(buffer.array());
         }
     }
 }

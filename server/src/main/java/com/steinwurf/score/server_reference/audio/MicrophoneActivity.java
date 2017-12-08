@@ -46,14 +46,9 @@ public class MicrophoneActivity extends AppCompatActivity {
     private final Server server = new Server(new ServerOnEventListener());
 
     /**
-     * The audio encoder which feeds the server
+     * The audio recorder which feeds the server
      */
-    private final AudioEncoder audioEncoder = new AudioEncoder(new AudioEncoderOnDataListener());
-
-    /**
-     * The microphone which feeds the video encoder
-     */
-    private final Microphone microphone = new Microphone(audioEncoder);
+    private final AudioRecorder audioRecorder = new AudioRecorder(new AudioRecorderOnDataListener());
 
     /**
      * The background handler for handling work in the background
@@ -95,15 +90,11 @@ public class MicrophoneActivity extends AppCompatActivity {
             if (isChecked) {
                 backgroundHandler.post(() -> {
                     server.start(ipString, portString);
-                    try {
-                        microphone.start();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                    audioRecorder.start();
                 }, () -> runOnUiThread(() -> buttonView.setEnabled(true)));
             } else {
                 backgroundHandler.post(() -> {
-                    microphone.stop();
+                    audioRecorder.stop();
                     server.stop();
                 }, () -> runOnUiThread(() -> buttonView.setEnabled(true)));
             }
@@ -113,7 +104,7 @@ public class MicrophoneActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        microphone.stop();
+        audioRecorder.stop();
         server.stop();
         backgroundHandler.stop();
     }
@@ -147,17 +138,12 @@ public class MicrophoneActivity extends AppCompatActivity {
      * Class for handling when the encoder has new data to feed to the server
      */
 
-    private class AudioEncoderOnDataListener implements AudioEncoder.OnDataListener {
+    private class AudioRecorderOnDataListener implements AudioRecorder.OnDataListener {
 
         @Override
         public void onData(ByteBuffer buffer) {
             byte[] data = buffer.array();
             server.sendMessage(data);
-        }
-
-        @Override
-        public void onFinish() {
-            Log.d(TAG, "EOS");
         }
     }
 }
