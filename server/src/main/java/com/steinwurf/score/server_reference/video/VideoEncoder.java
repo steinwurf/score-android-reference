@@ -1,4 +1,4 @@
-package com.steinwurf.score.server_reference;
+package com.steinwurf.score.server_reference.video;
 /*-
  * Copyright (c) 2017 Steinwurf ApS
  * All Rights Reserved

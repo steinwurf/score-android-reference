@@ -1,16 +1,7 @@
-package com.steinwurf.score.server_reference;
-/*-
- * Copyright (c) 2017 Steinwurf ApS
- * All Rights Reserved
- *
- * THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF STEINWURF
- * The copyright notice above does not evidence any
- * actual or intended publication of such source code.
- */
+package com.steinwurf.score.server_reference.audio;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
-import android.hardware.camera2.CameraManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -21,19 +12,19 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.ToggleButton;
 
+import com.steinwurf.score.server_reference.R;
+import com.steinwurf.score.server_reference.Server;
 import com.steinwurf.score.shared.BackgroundHandler;
-import com.steinwurf.score.shared.NaluType;
-import com.steinwurf.score_android_server_reference.R;
+import com.steinwurf.score.source.AutoSource;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 
-public class CameraActivity extends AppCompatActivity {
+public class MicrophoneActivity extends AppCompatActivity {
 
-    private static final String TAG = CameraActivity.class.getSimpleName();
+    private static final String TAG = MicrophoneActivity.class.getSimpleName();
 
     /**
-     * Permission request for for using the camera
+     * Permission request for for using the microphone
      */
     private static final int REQUEST_PERMISSIONS = 1;
 
@@ -53,14 +44,9 @@ public class CameraActivity extends AppCompatActivity {
     private final Server server = new Server(new ServerOnEventListener());
 
     /**
-     * The video encoder which feeds the server
+     * The audio recorder which feeds the server
      */
-    private final VideoEncoder videoEncoder = new VideoEncoder (new VideoEncoderOnDataListener());
-
-    /**
-     * The camera which feeds the video encoder
-     */
-    private final Camera camera = new Camera(videoEncoder);
+    private final AudioRecorder audioRecorder = new AudioRecorder(new AudioRecorderOnDataListener());
 
     /**
      * The background handler for handling work in the background
@@ -68,7 +54,7 @@ public class CameraActivity extends AppCompatActivity {
     private final BackgroundHandler backgroundHandler = new BackgroundHandler();
 
     /**
-     * The button for starting and stopping the client
+     * The button for starting and stopping the server
      */
     private ToggleButton startStopToggleButton;
 
@@ -76,7 +62,6 @@ public class CameraActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         startStopToggleButton = findViewById(R.id.startStopToggleButton);
         backgroundHandler.start();
     }
@@ -85,11 +70,11 @@ public class CameraActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED)
         {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
             {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, REQUEST_PERMISSIONS);
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, REQUEST_PERMISSIONS);
             }
         }
         else {
@@ -102,17 +87,20 @@ public class CameraActivity extends AppCompatActivity {
             buttonView.setEnabled(false);
             if (isChecked) {
                 backgroundHandler.post(() -> {
-                    server.start(ipString, portString);
-                    CameraManager manager = (CameraManager) getSystemService(CAMERA_SERVICE);
-                    try {
-                        camera.start(manager);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                    AutoSource autoSource = new AutoSource();
+                    // Configure the Score Source to handle the bufferSize of the audioRecorder.
+                    int scoreHeaderBytes = 20; // number of bytes in each score header.
+                    int generationSize = 4;
+                    int symbolSize = (audioRecorder.getBufferSize() / generationSize) + scoreHeaderBytes;
+                    autoSource.setSymbolSize(symbolSize);
+                    autoSource.setGenerationSize(generationSize);
+                    server.start(autoSource, ipString, portString);
+                    server.start(autoSource, ipString, portString);
+                    audioRecorder.start();
                 }, () -> runOnUiThread(() -> buttonView.setEnabled(true)));
             } else {
                 backgroundHandler.post(() -> {
-                    camera.stop();
+                    audioRecorder.stop();
                     server.stop();
                 }, () -> runOnUiThread(() -> buttonView.setEnabled(true)));
             }
@@ -122,7 +110,7 @@ public class CameraActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        camera.stop();
+        audioRecorder.stop();
         server.stop();
         backgroundHandler.stop();
     }
@@ -155,21 +143,13 @@ public class CameraActivity extends AppCompatActivity {
     /**
      * Class for handling when the encoder has new data to feed to the server
      */
-    private class VideoEncoderOnDataListener implements VideoEncoder.OnDataListener {
+
+    private class AudioRecorderOnDataListener implements AudioRecorder.OnDataListener {
 
         @Override
         public void onData(ByteBuffer buffer) {
             byte[] data = buffer.array();
-            if (NaluType.parse(data) == NaluType.IdrSlice) {
-                server.sendMessage(videoEncoder.getSPS());
-                server.sendMessage(videoEncoder.getPPS());
-            }
             server.sendMessage(data);
-        }
-
-        @Override
-        public void onFinish() {
-            Log.d(TAG, "EOS");
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.steinwurf.score.client_reference;
+package com.steinwurf.score.client_reference.video;
 /*-
  * Copyright (c) 2017 Steinwurf ApS
  * All Rights Reserved
@@ -19,22 +19,23 @@ import android.util.Log;
 import android.view.TextureView;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.CompoundButton;
 import android.widget.ToggleButton;
 
 import com.steinwurf.mediaplayer.Utils;
+import com.steinwurf.score.client_reference.Client;
+import com.steinwurf.score.client_reference.KeepAlive;
+import com.steinwurf.score.client_reference.R;
 import com.steinwurf.score.shared.BackgroundHandler;
 import com.steinwurf.score.shared.NaluType;
-import com.steinwurf.score_android_client_reference.R;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
 
-public class ClientActivity extends AppCompatActivity {
+public class VideoClientActivity extends AppCompatActivity {
 
-    private static final String TAG = ClientActivity.class.getSimpleName();
+    private static final String TAG = VideoClientActivity.class.getSimpleName();
 
     /**
      * Hardcoded IP string
@@ -86,7 +87,6 @@ public class ClientActivity extends AppCompatActivity {
      */
     byte[] pps = null;
 
-
     /**
      * The button for starting and stopping the client
      */
@@ -106,7 +106,7 @@ public class ClientActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_video_client);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         hideUI();
 
