@@ -13,7 +13,7 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".video.VideoClientActivity"
-            android:label="@string/video_client_app_name"
+            android:label="@string/video_app_name"
             android:screenOrientation="sensorLandscape"
             android:icon="@mipmap/ic_launcher"
             android:roundIcon="@mipmap/ic_launcher_round"
@@ -24,7 +24,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".audio.AudioClientActivity"
-            android:label="@string/audio_client_app_name"
+            android:label="@string/audio_app_name"
             android:icon="@mipmap/ic_launcher2"
             android:roundIcon="@mipmap/ic_launcher2_round">
             <intent-filter>

@@ -87,8 +87,8 @@ public class ScreenCaptureActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
+    protected void onResume() {
+        super.onResume();
         startStopToggleButton.setOnCheckedChangeListener((buttonView, isChecked) -> {
             buttonView.setEnabled(false);
             if (isChecked) {
@@ -105,9 +105,11 @@ public class ScreenCaptureActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        screenRecorder.stop();
-        server.stop();
-        backgroundHandler.stop();
+        if (isFinishing()) {
+            screenRecorder.stop();
+            server.stop();
+            backgroundHandler.stop();
+        }
     }
 
     @Override
@@ -117,8 +119,7 @@ public class ScreenCaptureActivity extends AppCompatActivity {
             return;
         }
         if (resultCode != RESULT_OK) {
-            Toast.makeText(this,
-                    "User denied screen sharing permission", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,"User denied screen sharing permission", Toast.LENGTH_SHORT).show();
             return;
         }
         final MediaProjection mediaProjection = mMediaProjectionManager.getMediaProjection(resultCode, data);

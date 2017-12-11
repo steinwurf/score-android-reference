@@ -69,7 +69,8 @@ public class AudioRecorder {
         short[] audioBuffer = new short[getBufferSize() / 2];
         byte[] bytes = new byte[getBufferSize()];
 
-        AudioRecord record = new AudioRecord(MediaRecorder.AudioSource.DEFAULT,
+        AudioRecord record = new AudioRecord(
+                MediaRecorder.AudioSource.DEFAULT,
                 SAMPLE_RATE,
                 AudioFormat.CHANNEL_IN_MONO,
                 AudioFormat.ENCODING_PCM_16BIT,

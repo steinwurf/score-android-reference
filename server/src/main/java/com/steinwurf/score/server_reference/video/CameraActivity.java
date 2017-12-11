@@ -84,8 +84,8 @@ public class CameraActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
+    protected void onResume() {
+        super.onResume();
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
         {
@@ -127,22 +127,24 @@ public class CameraActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        camera.stop();
-        server.stop();
-        backgroundHandler.stop();
+        if (isFinishing()) {
+            camera.stop();
+            server.stop();
+            backgroundHandler.stop();
+        }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
         if (requestCode == REQUEST_PERMISSIONS) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                setup();
-            } else {
+            if (grantResults.length <= 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle("Permission Issue")
                         .setMessage("Required permissions not granted.")
                         .setPositiveButton(android.R.string.ok, (dialog, which) -> finish());
                 builder.create().show();
+            } else {
+                setup();
             }
         }
     }
