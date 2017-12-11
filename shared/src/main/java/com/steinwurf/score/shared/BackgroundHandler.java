@@ -37,6 +37,9 @@ public class BackgroundHandler {
      * Start a background thread and its {@link Handler}.
      */
     public void start() {
+        if (mBackgroundThread != null)
+            return;
+
         mBackgroundThread = new HandlerThread(TAG);
         mBackgroundThread.start();
         mBackgroundHandler = new Handler(mBackgroundThread.getLooper());
@@ -96,10 +99,10 @@ public class BackgroundHandler {
         }
         try {
             mBackgroundThread.join();
-            mBackgroundThread = null;
-            mBackgroundHandler = null;
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        mBackgroundThread = null;
+        mBackgroundHandler = null;
     }
 }

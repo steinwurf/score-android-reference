@@ -61,14 +61,16 @@ public class MicrophoneActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreate");
         setContentView(R.layout.activity_main);
         startStopToggleButton = findViewById(R.id.startStopToggleButton);
         backgroundHandler.start();
+
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
+    protected void onResume() {
+        super.onResume();
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED)
         {
@@ -87,18 +89,22 @@ public class MicrophoneActivity extends AppCompatActivity {
             buttonView.setEnabled(false);
             if (isChecked) {
                 backgroundHandler.post(() -> {
+                    Log.d(TAG, "Starting");
                     AutoSource autoSource = new AutoSource();
                     // Configure the Score Source to handle the bufferSize of the audioRecorder.
-                    int scoreHeaderBytes = 20; // number of bytes in each score header.
-                    int generationSize = 4;
-                    int symbolSize = (audioRecorder.getBufferSize() / generationSize) + scoreHeaderBytes;
+                    // The library which splits up the messages into data packets, is called
+                    // chunkie. Part of the symbol size is a header and checksum from this
+                    // library. The size of this data is 16 bytes:
+                    int headerBytes = 16;
+                    int symbolSize = (audioRecorder.getBufferSize() / 4) + headerBytes;
                     autoSource.setSymbolSize(symbolSize);
-                    autoSource.setGenerationSize(generationSize);
+                    autoSource.setGenerationSize(12);
                     server.start(autoSource, ipString, portString);
                     server.start(autoSource, ipString, portString);
                     audioRecorder.start();
                 }, () -> runOnUiThread(() -> buttonView.setEnabled(true)));
             } else {
+                Log.d(TAG, "Stopping");
                 backgroundHandler.post(() -> {
                     audioRecorder.stop();
                     server.stop();
@@ -110,22 +116,24 @@ public class MicrophoneActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        audioRecorder.stop();
-        server.stop();
-        backgroundHandler.stop();
+        if (isFinishing()) {
+            audioRecorder.stop();
+            server.stop();
+            backgroundHandler.stop();
+        }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
         if (requestCode == REQUEST_PERMISSIONS) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                setup();
-            } else {
+            if (grantResults.length <= 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle("Permission Issue")
                         .setMessage("Required permissions not granted.")
                         .setPositiveButton(android.R.string.ok, (dialog, which) -> finish());
                 builder.create().show();
+            } else {
+                setup();
             }
         }
     }
