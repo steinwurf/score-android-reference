@@ -21,6 +21,7 @@ import com.steinwurf.score.server_reference.Server;
 import com.steinwurf.score.shared.BackgroundHandler;
 import com.steinwurf.score.shared.NaluType;
 import com.steinwurf.score.server_reference.R;
+import com.steinwurf.score.source.AutoSource;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -65,7 +66,7 @@ public class ScreenCaptureActivity extends AppCompatActivity {
     private final BackgroundHandler backgroundHandler = new BackgroundHandler();
 
     /**
-     * The button for starting and stopping the client
+     * The button for starting and stopping the server
      */
     private ToggleButton startStopToggleButton;
 
@@ -122,7 +123,11 @@ public class ScreenCaptureActivity extends AppCompatActivity {
         }
         final MediaProjection mediaProjection = mMediaProjectionManager.getMediaProjection(resultCode, data);
         backgroundHandler.post(() -> {
-            server.start(ipString, portString);
+            AutoSource autoSource = new AutoSource();
+            autoSource.setSymbolSize(750);
+            autoSource.setGenerationSize(50);
+            server.start(autoSource, ipString, portString);
+            server.start(autoSource, ipString, portString);
             try {
                 screenRecorder.start(mediaProjection);
             } catch (IOException e) {

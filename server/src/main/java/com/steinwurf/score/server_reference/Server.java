@@ -81,15 +81,13 @@ public class Server {
 
     /**
      * Start the server and connect to the given ip and port
+     * @param source the Source to use.
      * @param ipString The ip to send to.
      * @param portString The port to send to.
      */
-    public void start(String ipString, String portString) {
-        AutoSource autoSource = new AutoSource();
-        autoSource.setSymbolSize(750);
-        autoSource.setGenerationSize(50);
+    public void start(Source source, String ipString, String portString) {
+        this.source = source;
 
-        source = autoSource;
         port = Integer.parseInt(portString);
 
         try {

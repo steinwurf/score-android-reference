@@ -39,9 +39,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".audio.MicrophoneActivity"
-            android:icon="@mipmap/ic_launcher2"
+            android:icon="@mipmap/ic_launcher3"
             android:label="@string/microphone_app_name"
-            android:roundIcon="@mipmap/ic_launcher2_round">
+            android:roundIcon="@mipmap/ic_launcher3_round">
         <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

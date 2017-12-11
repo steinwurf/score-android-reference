@@ -25,18 +25,13 @@ public class AudioRecorder {
         this.onDataListener = onDataListener;
     }
 
-    private boolean mIsRecording = false;
     private Thread mThread;
-
-    public boolean isRecording() {
-        return mThread != null;
-    }
+    private boolean mRunning = false;
 
     public void start() {
         if (mThread != null)
             return;
-
-        mIsRecording = true;
+        mRunning = true;
         mThread = new Thread(this::record);
         mThread.start();
     }
@@ -44,7 +39,8 @@ public class AudioRecorder {
     public void stop() {
         if (mThread == null)
             return;
-        mIsRecording = false;
+
+        mRunning = false;
         try {
             mThread.join();
         } catch (InterruptedException e) {
@@ -53,10 +49,12 @@ public class AudioRecorder {
         mThread = null;
     }
 
-    private void record() {
-        Log.v(TAG, "Start");
-
-        // buffer size in bytes
+    /**
+     * Get the buffer size in bytes
+     * @return buffer size in bytes
+     */
+    public int getBufferSize()
+    {
         int bufferSize = AudioRecord.getMinBufferSize(SAMPLE_RATE,
                 AudioFormat.CHANNEL_IN_MONO,
                 AudioFormat.ENCODING_PCM_16BIT);
@@ -64,25 +62,25 @@ public class AudioRecorder {
         if (bufferSize == AudioRecord.ERROR || bufferSize == AudioRecord.ERROR_BAD_VALUE) {
             bufferSize = SAMPLE_RATE * 2;
         }
+        return bufferSize;
+    }
 
-        short[] audioBuffer = new short[bufferSize / 2];
-        byte[] bytes = new byte[bufferSize];
+    private void record() {
+        short[] audioBuffer = new short[getBufferSize() / 2];
+        byte[] bytes = new byte[getBufferSize()];
 
         AudioRecord record = new AudioRecord(MediaRecorder.AudioSource.DEFAULT,
                 SAMPLE_RATE,
                 AudioFormat.CHANNEL_IN_MONO,
                 AudioFormat.ENCODING_PCM_16BIT,
-                bufferSize);
+                getBufferSize());
 
         if (record.getState() != AudioRecord.STATE_INITIALIZED) {
-            Log.e(TAG, "Audio Record can't initialize!");
-            return;
+            throw new RuntimeException("Audio Record can't initialize!");
         }
+
         record.startRecording();
-
-        Log.v(TAG, "Start recording");
-
-        while (mIsRecording) {
+        while (mRunning) {
             record.read(audioBuffer, 0, audioBuffer.length);
 
             // Notify waveform
