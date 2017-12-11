@@ -17,8 +17,7 @@
             android:name=".video.ScreenCaptureActivity"
             android:icon="@mipmap/ic_launcher1"
             android:label="@string/screen_capture_app_name"
-            android:roundIcon="@mipmap/ic_launcher1_round"
-            android:taskAffinity=".ScreenCaptureActivity">
+            android:roundIcon="@mipmap/ic_launcher1_round">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -30,8 +29,7 @@
             android:icon="@mipmap/ic_launcher2"
             android:label="@string/camera_app_name"
             android:roundIcon="@mipmap/ic_launcher2_round"
-            android:screenOrientation="sensorLandscape"
-            android:taskAffinity=".CameraActivity">
+            android:screenOrientation="sensorLandscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -40,8 +38,8 @@
         </activity>
         <activity android:name=".audio.MicrophoneActivity"
             android:icon="@mipmap/ic_launcher3"
-            android:label="@string/microphone_app_name"
-            android:roundIcon="@mipmap/ic_launcher3_round">
+            android:roundIcon="@mipmap/ic_launcher3_round"
+            android:label="@string/microphone_app_name">
         <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

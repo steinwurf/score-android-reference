@@ -27,6 +27,5 @@ dependencies {
 
     implementation 'com.steinwurf.score:source:2.0.1'
     implementation 'org.jetbrains:annotations-java5:15.0'
-    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
     compile project(path: ':shared')
 }
