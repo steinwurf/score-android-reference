@@ -10,6 +10,10 @@ multicast communication over UDP.
 This repository contains reference which illustrates how to use the
 `score-android <https://github.com/steinwurf/score-android>`_ library.
 
+
+.. contents:: Table of Contents:
+   :local:
+
 Setup
 =====
 The score-android library is a dependency of this project.
