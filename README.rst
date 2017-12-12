@@ -1,7 +1,7 @@
 =======================
 score-android-reference
 =======================
-|buildbot| **client:** |API-16| **server:**: |API-21|
+|buildbot| **client:** |API-16| **server:** |API-21|
 
 **Score** is a library which implements the
 **S**\ imple **Co**\ ded **Re**\ liable protocol for reliable unicast and
