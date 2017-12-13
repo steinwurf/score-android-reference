@@ -8,13 +8,16 @@ package com.steinwurf.score.server_reference.video;
  * actual or intended publication of such source code.
  */
 
+import android.annotation.TargetApi;
 import android.hardware.display.DisplayManager;
 import android.hardware.display.VirtualDisplay;
 import android.media.projection.MediaProjection;
+import android.os.Build;
 import android.util.Log;
 
 import java.io.IOException;
 
+@TargetApi(Build.VERSION_CODES.LOLLIPOP)
 class ScreenCapture {
 
     /**

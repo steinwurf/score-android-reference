@@ -15,32 +15,32 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".video.ScreenCaptureActivity"
-            android:icon="@mipmap/ic_launcher1"
+            android:enabled="@bool/sdk_version_21_available"
             android:label="@string/screen_capture_app_name"
+            android:icon="@mipmap/ic_launcher1"
             android:roundIcon="@mipmap/ic_launcher1_round">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name=".video.CameraActivity"
-            android:icon="@mipmap/ic_launcher2"
+            android:enabled="@bool/sdk_version_21_available"
             android:label="@string/camera_app_name"
+            android:icon="@mipmap/ic_launcher2"
             android:roundIcon="@mipmap/ic_launcher2_round"
             android:screenOrientation="sensorLandscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity android:name=".audio.MicrophoneActivity"
+            android:label="@string/microphone_app_name"
             android:icon="@mipmap/ic_launcher3"
-            android:roundIcon="@mipmap/ic_launcher3_round"
-            android:label="@string/microphone_app_name">
-        <intent-filter>
+            android:roundIcon="@mipmap/ic_launcher3_round">
+            <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>

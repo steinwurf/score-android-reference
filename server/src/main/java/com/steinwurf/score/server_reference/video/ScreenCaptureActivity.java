@@ -11,6 +11,8 @@ package com.steinwurf.score.server_reference.video;
 import android.content.Intent;
 import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -26,6 +28,7 @@ import com.steinwurf.score.source.AutoSource;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class ScreenCaptureActivity extends AppCompatActivity {
 
     private static final String TAG = ScreenCaptureActivity.class.getSimpleName();
@@ -78,6 +81,12 @@ public class ScreenCaptureActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            Toast.makeText(this, "This application requires SDK level 21", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+
         setContentView(R.layout.activity_main);
 
         startStopToggleButton = findViewById(R.id.startStopToggleButton);
