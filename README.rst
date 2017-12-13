@@ -1,7 +1,7 @@
 =======================
 score-android-reference
 =======================
-|buildbot| **client:** |API-16| **server:** |API-21|
+|buildbot|
 
 **Score** is a library which implements the
 **S**\ imple **Co**\ ded **Re**\ liable protocol for reliable unicast and
@@ -63,12 +63,16 @@ Score Audio
 
 |Score Audio|
 
+|API-14|
+
 This example is the client side of the audio examples.
 
 Score Microphone
 ................
 
 |Score Microphone|
+
+|API-14|
 
 This example is the server side of the audio examples. It streams the audio
 recorded from the device's microphone.
@@ -89,6 +93,8 @@ Score Video
 
 |Score Video|
 
+|API-16|
+
 This example is the client side of the video examples.
 It uses Steinwurf's `mediaplayer library <https://github.com/steinwurf/mediaplayer-android>`_ for playback of the incoming video data.
 The before the video player can start the playback of video, it needs the SPS
@@ -102,6 +108,8 @@ Score Camera
 
 |Score Camera|
 
+|API-21|
+
 This example is one of the server sides of the video example. This app creates a
 score video stream from the device's first camera. This is usually the back
 camera.
@@ -110,6 +118,8 @@ Score Screen Capture
 ....................
 
 |Score Screen Capture|
+
+|API-21|
 
 This example is another server side example of the video example.
 This app creates a score video stream based on the screen of the device.
@@ -138,6 +148,9 @@ THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF STEINWURF.
 
 .. |buildbot| image:: http://buildbot.steinwurf.dk/svgstatus?project=score-android-reference
     :target: http://buildbot.steinwurf.dk/stats?projects=score-android-reference
+
+.. |API-14| image:: https://img.shields.io/badge/API-14%2B-brightgreen.svg?style=flat
+    :target: https://android-arsenal.com/api?level=14
 
 .. |API-16| image:: https://img.shields.io/badge/API-16%2B-brightgreen.svg?style=flat
     :target: https://android-arsenal.com/api?level=16

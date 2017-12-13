@@ -4,7 +4,7 @@ android {
     compileSdkVersion project.ext.compileSdkVersion
     defaultConfig {
         applicationId "com.steinwurf.score.server_reference"
-        minSdkVersion 21
+        minSdkVersion 14
         targetSdkVersion project.ext.targetSdkVersion
         versionCode androidGitVersion.code()
         versionName androidGitVersion.name()
@@ -27,5 +27,5 @@ dependencies {
 
     implementation 'com.steinwurf.score:source:2.0.1'
     implementation 'org.jetbrains:annotations-java5:15.0'
-    compile project(path: ':shared')
+    implementation project(path: ':shared')
 }

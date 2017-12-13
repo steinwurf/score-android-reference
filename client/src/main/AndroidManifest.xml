@@ -1,29 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.steinwurf.score.client_reference">
+    package="com.steinwurf.score.client_reference"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
+    <!--
+        The min sdk of the mediaplayer library is 16, but since this application disables the
+        VideoClientActivity, if the SDK version is below 16, we add this line to override the error.
+    -->
+    <uses-sdk tools:overrideLibrary="com.steinwurf.mediaplayer"/>
+
     <application
         android:allowBackup="true"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
+            android:enabled="@bool/sdk_version_16_available"
             android:name=".video.VideoClientActivity"
             android:label="@string/video_app_name"
-            android:screenOrientation="sensorLandscape"
             android:icon="@mipmap/ic_launcher"
             android:roundIcon="@mipmap/ic_launcher_round"
+            android:screenOrientation="sensorLandscape"
             android:theme="@style/Theme.AppCompat.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".audio.AudioClientActivity"
+        <activity
+            android:name=".audio.AudioClientActivity"
             android:label="@string/audio_app_name"
             android:icon="@mipmap/ic_launcher2"
             android:roundIcon="@mipmap/ic_launcher2_round">

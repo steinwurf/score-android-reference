@@ -8,6 +8,7 @@ package com.steinwurf.score.server_reference.video;
  * actual or intended publication of such source code.
  */
 
+import android.annotation.TargetApi;
 import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
@@ -19,6 +20,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+@TargetApi(Build.VERSION_CODES.LOLLIPOP)
 class VideoEncoder {
 
     public interface OnDataListener {

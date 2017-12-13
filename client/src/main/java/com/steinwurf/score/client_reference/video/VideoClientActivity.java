@@ -13,6 +13,7 @@ import android.graphics.Matrix;
 import android.graphics.Point;
 import android.net.wifi.WifiManager;
 import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -33,6 +34,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
 
+@RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
 public class VideoClientActivity extends AppCompatActivity {
 
     private static final String TAG = VideoClientActivity.class.getSimpleName();
@@ -124,6 +126,13 @@ public class VideoClientActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        if (keepAlive != null)
+            keepAlive.start();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         startStopToggleButton.setOnCheckedChangeListener((buttonView, isChecked) -> {
             buttonView.setEnabled(false);
 
@@ -141,16 +150,23 @@ public class VideoClientActivity extends AppCompatActivity {
                 lookingForSeverLinearLayout.setVisibility(View.VISIBLE);
             }
         });
-        if (keepAlive != null)
-            keepAlive.start();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        client.stop();
         if (keepAlive != null)
             keepAlive.stop();
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (isFinishing()) {
+            client.stop();
+            backgroundHandler.stop();
+        }
     }
 
     /**

@@ -11,6 +11,8 @@ package com.steinwurf.score.server_reference.video;
 import android.content.Intent;
 import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -26,6 +28,7 @@ import com.steinwurf.score.source.AutoSource;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class ScreenCaptureActivity extends AppCompatActivity {
 
     private static final String TAG = ScreenCaptureActivity.class.getSimpleName();

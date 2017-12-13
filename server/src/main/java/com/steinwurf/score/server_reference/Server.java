@@ -80,9 +80,9 @@ public class Server {
     }
 
     /**
-     * Start the server and connect to the given ip and port
+     * Start the server and connect to the given IP and port
      * @param source the Source to use.
-     * @param ipString The ip to send to.
+     * @param ipString The IP to send to.
      * @param portString The port to send to.
      */
     public void start(Source source, String ipString, String portString) {

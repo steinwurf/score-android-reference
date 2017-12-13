@@ -9,12 +9,14 @@ package com.steinwurf.score.server_reference.video;
  */
 
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureRequest;
+import android.os.Build;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -27,6 +29,7 @@ import java.util.Collections;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+@TargetApi(Build.VERSION_CODES.LOLLIPOP)
 class Camera {
 
     /**
@@ -48,40 +51,6 @@ class Camera {
      * A reference to the opened {@link CameraDevice}.
      */
     private CameraDevice mCameraDevice;
-
-    /**
-     * {@link CameraDevice.StateCallback} is called when {@link CameraDevice} changes its state.
-     */
-    private final CameraDevice.StateCallback mStateCallback = new CameraDevice.StateCallback() {
-
-        @Override
-        public void onOpened(@NonNull CameraDevice cameraDevice) {
-            // This method is called when the camera is opened.  We start camera preview here.
-            mCameraOpenCloseLock.release();
-            mCameraDevice = cameraDevice;
-            try {
-                createCameraCaptureSession();
-            } catch (CameraAccessException e) {
-                e.printStackTrace();
-            }
-        }
-
-        @Override
-        public void onDisconnected(@NonNull CameraDevice cameraDevice) {
-            mCameraOpenCloseLock.release();
-            cameraDevice.close();
-            mCameraDevice = null;
-        }
-
-        @Override
-        public void onError(@NonNull CameraDevice cameraDevice, int error) {
-            mCameraOpenCloseLock.release();
-            cameraDevice.close();
-            mCameraDevice = null;
-            // todo maybe onError callback
-        }
-
-    };
 
     /**
      * A {@link Handler} for running tasks in the background.
@@ -133,7 +102,7 @@ class Camera {
             // Just pick the first camera
             String cameraId = manager.getCameraIdList()[0];
 
-            manager.openCamera(cameraId, mStateCallback, mBackgroundHandler.getHandler());
+            manager.openCamera(cameraId, new CameraDeviceStateCallback(), mBackgroundHandler.getHandler());
         } catch (CameraAccessException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
@@ -214,4 +183,36 @@ class Camera {
             );
         }
     }
+
+    /**
+     * {@link CameraDevice.StateCallback} is called when {@link CameraDevice} changes its state.
+     */
+    private class CameraDeviceStateCallback extends CameraDevice.StateCallback {
+        @Override
+        public void onOpened(@NonNull CameraDevice cameraDevice) {
+            // This method is called when the camera is opened.  We start camera preview here.
+            mCameraOpenCloseLock.release();
+            mCameraDevice = cameraDevice;
+            try {
+                createCameraCaptureSession();
+            } catch (CameraAccessException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void onDisconnected(@NonNull CameraDevice cameraDevice) {
+            mCameraOpenCloseLock.release();
+            cameraDevice.close();
+            mCameraDevice = null;
+        }
+
+        @Override
+        public void onError(@NonNull CameraDevice cameraDevice, int error) {
+            mCameraOpenCloseLock.release();
+            cameraDevice.close();
+            mCameraDevice = null;
+            // todo maybe onError callback
+        }
+    };
 }
