@@ -131,7 +131,6 @@ public class ScreenCaptureActivity extends AppCompatActivity {
             autoSource.setSymbolSize(750);
             autoSource.setGenerationSize(50);
             server.start(autoSource, ipString, portString);
-            server.start(autoSource, ipString, portString);
             try {
                 screenRecorder.start(mediaProjection);
             } catch (IOException e) {
