@@ -20,7 +20,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.steinwurf.score.server_reference.R;
@@ -80,12 +79,6 @@ public class CameraActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            Toast.makeText(this, "This application requires SDK level 21", Toast.LENGTH_SHORT).show();
-            finish();
-            return;
-        }
-
         setContentView(R.layout.activity_main);
         startStopToggleButton = findViewById(R.id.startStopToggleButton);
         backgroundHandler.start();

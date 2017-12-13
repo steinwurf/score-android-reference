@@ -76,6 +76,13 @@ public class AudioClientActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        if (keepAlive != null)
+            keepAlive.start();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         startStopToggleButton.setOnCheckedChangeListener((buttonView, isChecked) -> {
             buttonView.setEnabled(false);
 
@@ -93,16 +100,22 @@ public class AudioClientActivity extends AppCompatActivity {
                 lookingForSeverLinearLayout.setVisibility(View.VISIBLE);
             }
         });
-        if (keepAlive != null)
-            keepAlive.start();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        client.stop();
         if (keepAlive != null)
             keepAlive.stop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (isFinishing()) {
+            client.stop();
+            backgroundHandler.stop();
+        }
     }
 
     private class ClientOnEventListener implements Client.OnEventListener {
