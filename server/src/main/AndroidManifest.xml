@@ -14,8 +14,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".video.ScreenCaptureActivity"
             android:enabled="@bool/sdk_version_21_available"
+            android:name=".video.ScreenCaptureActivity"
             android:label="@string/screen_capture_app_name"
             android:icon="@mipmap/ic_launcher1"
             android:roundIcon="@mipmap/ic_launcher1_round">
@@ -25,8 +25,8 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".video.CameraActivity"
             android:enabled="@bool/sdk_version_21_available"
+            android:name=".video.CameraActivity"
             android:label="@string/camera_app_name"
             android:icon="@mipmap/ic_launcher2"
             android:roundIcon="@mipmap/ic_launcher2_round"
@@ -36,7 +36,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".audio.MicrophoneActivity"
+        <activity
+            android:name=".audio.MicrophoneActivity"
             android:label="@string/microphone_app_name"
             android:icon="@mipmap/ic_launcher3"
             android:roundIcon="@mipmap/ic_launcher3_round">

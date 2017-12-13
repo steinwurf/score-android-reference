@@ -13,6 +13,7 @@ import android.graphics.Matrix;
 import android.graphics.Point;
 import android.net.wifi.WifiManager;
 import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -33,6 +34,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
 
+@RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
 public class VideoClientActivity extends AppCompatActivity {
 
     private static final String TAG = VideoClientActivity.class.getSimpleName();
