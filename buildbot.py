@@ -14,19 +14,6 @@ def run_command(args, shell=False):
     subprocess.check_call(args, shell=shell)
 
 
-def get_tool_options(properties):
-    options = []
-    if 'tool_options' in properties:
-        # Make sure that the values are correctly comma separated
-        for key, value in properties['tool_options'].items():
-            if value is None:
-                options += ['--{0}'.format(key)]
-            else:
-                options += ['--{0}={1}'.format(key, value)]
-
-    return options
-
-
 def get_compile_sdk_version():
     # We extract compileSdkVersion from build.gradle
     with open('build.gradle') as f:
