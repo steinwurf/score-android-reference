@@ -1,7 +1,7 @@
 =======================
 score-android-reference
 =======================
-|buildbot| **client:** |API-16| **server:**: |API-21|
+|buildbot| **client:** |API-16| **server:** |API-21|
 
 **Score** is a library which implements the
 **S**\ imple **Co**\ ded **Re**\ liable protocol for reliable unicast and
@@ -9,6 +9,10 @@ multicast communication over UDP.
 
 This repository contains reference which illustrates how to use the
 `score-android <https://github.com/steinwurf/score-android>`_ library.
+
+
+.. contents:: Table of Contents:
+   :local:
 
 Setup
 =====
@@ -54,12 +58,18 @@ Audio
 -----
 This section describes the audio related examples.
 
-|Score Audio| Score Audio
-.........................
+Score Audio
+...........
+
+|Score Audio|
+
 This example is the client side of the audio examples.
 
-|Score Microphone| Score Microphone
-...................................
+Score Microphone
+................
+
+|Score Microphone|
+
 This example is the server side of the audio examples. It streams the audio
 recorded from the device's microphone.
 
@@ -74,8 +84,11 @@ Video
 -----
 This seconds describes the Apps related to video streaming.
 
-|Score Video| Score Video
-.........................
+Score Video
+...........
+
+|Score Video|
+
 This example is the client side of the video examples.
 It uses Steinwurf's `mediaplayer library <https://github.com/steinwurf/mediaplayer-android>`_ for playback of the incoming video data.
 The before the video player can start the playback of video, it needs the SPS
@@ -84,14 +97,20 @@ to the stream before each I-frame (NaluType.IdrSlice) in the stream.
 Additionally the last 8 bytes of the received message is a long representing the
 time stamp of the received video sample.
 
-|Score Camera| Score Camera
-...........................
+Score Camera
+............
+
+|Score Camera|
+
 This example is one of the server sides of the video example. This app creates a
 score video stream from the device's first camera. This is usually the back
 camera.
 
-|Score Screen Capture| Score Screen Capture
-...........................................
+Score Screen Capture
+....................
+
+|Score Screen Capture|
+
 This example is another server side example of the video example.
 This app creates a score video stream based on the screen of the device.
 It uses the same encoder and encoding configuration as the Score Camera example.
