@@ -16,6 +16,8 @@ import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -37,16 +39,6 @@ public class ScreenCaptureActivity extends AppCompatActivity {
      * Permission request for for capturing the screen.
      */
     private static final int REQUEST_PERMISSIONS = 1;
-
-    /**
-     * Hardcoded IP string
-     */
-    private static final String ipString = "224.0.0.251";
-
-    /**
-     * Hardcoded Port string
-     */
-    private static final String portString = "9810";
 
     /**
      * The server
@@ -74,6 +66,16 @@ public class ScreenCaptureActivity extends AppCompatActivity {
     private ToggleButton startStopToggleButton;
 
     /**
+     * The EditText inputting the server ip
+     */
+    private EditText ipEditText;
+
+    /**
+     * The EditText inputting the server port
+     */
+    private EditText portEditText;
+
+    /**
      * The Media Projection Manager used for initializing the screen capture
      */
     private MediaProjectionManager mMediaProjectionManager;
@@ -84,6 +86,10 @@ public class ScreenCaptureActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         startStopToggleButton = findViewById(R.id.startStopToggleButton);
+
+        ipEditText = findViewById(R.id.ipEditText);
+        portEditText = findViewById(R.id.portEditText);
+
         mMediaProjectionManager = (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE);
         backgroundHandler.start();
 
@@ -93,14 +99,20 @@ public class ScreenCaptureActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         startStopToggleButton.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            buttonView.setEnabled(false);
+            startStopToggleButton.setEnabled(false);
+            ipEditText.setEnabled(false);
+            portEditText.setEnabled(false);
             if (isChecked) {
                 startActivityForResult(mMediaProjectionManager.createScreenCaptureIntent(), REQUEST_PERMISSIONS);
             } else {
                 backgroundHandler.post(() -> {
                     screenRecorder.stop();
                     server.stop();
-                }, () -> runOnUiThread(() -> buttonView.setEnabled(true)));
+                }, () -> runOnUiThread(() -> {
+                    startStopToggleButton.setEnabled(true);
+                    ipEditText.setEnabled(true);
+                    portEditText.setEnabled(true);
+                }));
             }
         });
     }
@@ -130,6 +142,9 @@ public class ScreenCaptureActivity extends AppCompatActivity {
             AutoSource autoSource = new AutoSource();
             autoSource.setSymbolSize(750);
             autoSource.setGenerationSize(50);
+
+            String ipString = ipEditText.getText().toString();
+            String portString = portEditText.getText().toString();
             server.start(autoSource, ipString, portString);
             try {
                 screenRecorder.start(mediaProjection);

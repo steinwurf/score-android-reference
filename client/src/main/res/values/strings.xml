@@ -3,4 +3,10 @@
     <string name="audio_app_name">Score Audio</string>
     <string name="start">Start</string>
     <string name="stop">Stop</string>
+    <string name="no_picture">No Picture</string>
+    <string name="no_audio">No Audio</string>
+    <string name="default_ip">224.0.0.251</string>
+    <string name="default_port">9810</string>
+    <string name="ip">IP</string>
+    <string name="port">Port</string>
 </resources>

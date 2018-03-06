@@ -20,6 +20,7 @@ import android.util.Log;
 import android.view.TextureView;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.EditText;
 import android.widget.ToggleButton;
 
 import com.steinwurf.mediaplayer.Utils;
@@ -38,16 +39,6 @@ import java.util.Arrays;
 public class VideoClientActivity extends AppCompatActivity {
 
     private static final String TAG = VideoClientActivity.class.getSimpleName();
-
-    /**
-     * Hardcoded IP string
-     */
-    private static final String ipString = "224.0.0.251";
-
-    /**
-     * Hardcoded Port string
-     */
-    private static final String portString = "9810";
 
     /**
      * Hardcoded width of the incoming stream
@@ -104,6 +95,16 @@ public class VideoClientActivity extends AppCompatActivity {
      */
     private View lookingForSeverLinearLayout;
 
+    /**
+     * The EditText which should contain the multicast ip to join
+     */
+    private EditText ipEditText;
+
+    /**
+     * The EditText which should contain the port
+     */
+    private EditText portEditText;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,6 +119,9 @@ public class VideoClientActivity extends AppCompatActivity {
         startStopToggleButton = findViewById(R.id.startStopToggleButton);
         videoTextureView = findViewById(R.id.videoTextureView);
         lookingForSeverLinearLayout = findViewById(R.id.lookingForSeverLinearLayout);
+        ipEditText = findViewById(R.id.ipEditText);
+        portEditText = findViewById(R.id.portEditText);
+
         videoTextureView.setSurfaceTextureListener(videoPlayer);
 
         backgroundHandler.start();
@@ -135,8 +139,12 @@ public class VideoClientActivity extends AppCompatActivity {
         super.onResume();
         startStopToggleButton.setOnCheckedChangeListener((buttonView, isChecked) -> {
             buttonView.setEnabled(false);
+            ipEditText.setEnabled(false);
+            portEditText.setEnabled(false);
 
             if (isChecked) {
+                String ipString = ipEditText.getText().toString();
+                String portString = portEditText.getText().toString();
                 backgroundHandler.post(
                         () -> client.start(ipString, portString),
                         () -> runOnUiThread(() -> buttonView.setEnabled(true)));
@@ -145,7 +153,11 @@ public class VideoClientActivity extends AppCompatActivity {
                     client.stop();
                     if (videoPlayer.isRunning())
                         videoPlayer.stop();
-                }, () -> runOnUiThread(() -> buttonView.setEnabled(true)));
+                }, () -> runOnUiThread(() -> {
+                    buttonView.setEnabled(true);
+                    ipEditText.setEnabled(true);
+                    portEditText.setEnabled(true);
+                }));
 
                 lookingForSeverLinearLayout.setVisibility(View.VISIBLE);
             }
