@@ -20,32 +20,34 @@
             android:textOn="@string/stop"/>
 
         <LinearLayout
-            android:layout_height="wrap_content"
             android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="horizontal">
             <TextView
-                android:text="@string/ip"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:text="@string/ip" />
             <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:id="@+id/ipEditText"
                 android:text="@string/default_ip"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:inputType="text"/>
         </LinearLayout>
         <LinearLayout
-            android:layout_height="wrap_content"
             android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="horizontal">
             <TextView
-                android:text="@string/port"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:text="@string/port" />
             <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:id="@+id/portEditText"
                 android:text="@string/default_port"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:inputType="numberSigned"/>
         </LinearLayout>
     </LinearLayout>
 
