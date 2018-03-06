@@ -6,11 +6,11 @@
     android:background="@android:color/black">
 
     <ImageView
+        android:src="@android:drawable/ic_lock_silent_mode_off"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:src="@android:drawable/ic_lock_silent_mode_off"/>
+        android:layout_centerVertical="true"/>
 
     <LinearLayout
         android:id="@+id/lookingForSeverLinearLayout"
@@ -18,16 +18,61 @@
         android:layout_height="match_parent"
         android:background="@android:color/black"
         android:gravity="center"
-        android:orientation="horizontal">
-            <TextView
+        android:orientation="vertical">
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:fontFamily="sans-serif"
-            android:text="No Audio"
+            android:text="@string/no_audio"
             android:textColor="@android:color/white"
             android:textSize="24sp"
             android:textStyle="bold"/>
+
+        <LinearLayout
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <LinearLayout
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:text="@string/ip"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/white"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+                <EditText
+                    android:id="@+id/ipEditText"
+                    android:text="@string/default_ip"
+                    android:textColor="@android:color/white"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:inputType="text" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:text="@string/port"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/white"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+                <EditText
+                    android:id="@+id/portEditText"
+                    android:text="@string/default_port"
+                    android:textColor="@android:color/white"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:inputType="numberSigned" />
+            </LinearLayout>
+        </LinearLayout>
     </LinearLayout>
 
     <ToggleButton

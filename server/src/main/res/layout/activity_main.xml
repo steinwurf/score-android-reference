@@ -6,17 +6,52 @@
     android:orientation="vertical"
     tools:context="com.steinwurf.score.server_reference.video.ScreenCaptureActivity">
 
-    <ToggleButton
-        android:id="@+id/startStopToggleButton"
-        android:layout_width="match_parent"
+    <LinearLayout
+        android:padding="16sp"
         android:layout_height="wrap_content"
-        android:textOff="@string/start"
-        android:textOn="@string/stop"/>
+        android:layout_width="match_parent"
+        android:orientation="vertical">
+
+        <ToggleButton
+            android:id="@+id/startStopToggleButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textOff="@string/start"
+            android:textOn="@string/stop"/>
+
+        <LinearLayout
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:orientation="horizontal">
+            <TextView
+                android:text="@string/ip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <EditText
+                android:id="@+id/ipEditText"
+                android:text="@string/default_ip"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:orientation="horizontal">
+            <TextView
+                android:text="@string/port"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <EditText
+                android:id="@+id/portEditText"
+                android:text="@string/default_port"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+    </LinearLayout>
 
     <TextView
         android:id="@+id/infoTextView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1" />
-
 </LinearLayout>

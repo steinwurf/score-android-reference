@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ToggleButton;
 
 import com.steinwurf.score.client_reference.Client;
@@ -59,6 +60,16 @@ public class AudioClientActivity extends AppCompatActivity {
      */
     private View lookingForSeverLinearLayout;
 
+    /**
+     * The EditText which should contain the multicast ip to join
+     */
+    private EditText ipEditText;
+
+    /**
+     * The EditText which should contain the port
+     */
+    private EditText portEditText;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,6 +80,8 @@ public class AudioClientActivity extends AppCompatActivity {
 
         startStopToggleButton = findViewById(R.id.startStopToggleButton);
         lookingForSeverLinearLayout = findViewById(R.id.lookingForSeverLinearLayout);
+        ipEditText = findViewById(R.id.ipEditText);
+        portEditText = findViewById(R.id.portEditText);
 
         backgroundHandler.start();
     }
@@ -85,8 +98,12 @@ public class AudioClientActivity extends AppCompatActivity {
         super.onResume();
         startStopToggleButton.setOnCheckedChangeListener((buttonView, isChecked) -> {
             buttonView.setEnabled(false);
+            ipEditText.setEnabled(false);
+            portEditText.setEnabled(false);
 
             if (isChecked) {
+                String ipString = ipEditText.getText().toString();
+                String portString = portEditText.getText().toString();
                 backgroundHandler.post(
                         () -> client.start(ipString, portString),
                         () -> runOnUiThread(() -> buttonView.setEnabled(true)));
@@ -95,7 +112,11 @@ public class AudioClientActivity extends AppCompatActivity {
                     client.stop();
                     if (audioPlayer.isPlaying())
                         audioPlayer.stop();
-                }, () -> runOnUiThread(() -> buttonView.setEnabled(true)));
+                }, () -> runOnUiThread(() -> {
+                    buttonView.setEnabled(true);
+                    ipEditText.setEnabled(true);
+                    portEditText.setEnabled(true);
+                }));
 
                 lookingForSeverLinearLayout.setVisibility(View.VISIBLE);
             }

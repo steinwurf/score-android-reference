@@ -132,7 +132,6 @@ limitations would likely need to be addressed in a real application.
 
 Some of these are listed here:
 
-#. The IP and port is hard-coded.
 #. The media encoding configuration is hard-coded.
 #. If only a small amount of data is being transmitted it can take a long time
    before enough data is available in the score source for it to create data

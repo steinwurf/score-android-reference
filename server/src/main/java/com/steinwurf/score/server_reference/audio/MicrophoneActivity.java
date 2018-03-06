@@ -10,6 +10,8 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+import android.widget.EditText;
 import android.widget.ToggleButton;
 
 import com.steinwurf.score.server_reference.R;
@@ -29,16 +31,6 @@ public class MicrophoneActivity extends AppCompatActivity {
     private static final int REQUEST_PERMISSIONS = 1;
 
     /**
-     * Hardcoded IP string
-     */
-    private static final String ipString = "224.0.0.251";
-
-    /**
-     * Hardcoded Port string
-     */
-    private static final String portString = "9810";
-
-    /**
      * The server
      */
     private final Server server = new Server(new ServerOnEventListener());
@@ -54,6 +46,16 @@ public class MicrophoneActivity extends AppCompatActivity {
     private final BackgroundHandler backgroundHandler = new BackgroundHandler();
 
     /**
+     * The EditText inputting the server ip
+     */
+    private EditText ipEditText;
+
+    /**
+     * The EditText inputting the server port
+     */
+    private EditText portEditText;
+
+    /**
      * The button for starting and stopping the server
      */
     private ToggleButton startStopToggleButton;
@@ -63,7 +65,12 @@ public class MicrophoneActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate");
         setContentView(R.layout.activity_main);
+
         startStopToggleButton = findViewById(R.id.startStopToggleButton);
+
+        ipEditText = findViewById(R.id.ipEditText);
+        portEditText = findViewById(R.id.portEditText);
+
         backgroundHandler.start();
 
     }
@@ -86,7 +93,9 @@ public class MicrophoneActivity extends AppCompatActivity {
 
     private void setup() {
         startStopToggleButton.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            buttonView.setEnabled(false);
+            startStopToggleButton.setEnabled(false);
+            ipEditText.setEnabled(false);
+            portEditText.setEnabled(false);
             if (isChecked) {
                 backgroundHandler.post(() -> {
                     Log.d(TAG, "Starting");
@@ -99,15 +108,22 @@ public class MicrophoneActivity extends AppCompatActivity {
                     int symbolSize = (audioRecorder.getBufferSize() / 4) + headerBytes;
                     autoSource.setSymbolSize(symbolSize);
                     autoSource.setGenerationSize(12);
+
+                    String ipString = ipEditText.getText().toString();
+                    String portString = portEditText.getText().toString();
                     server.start(autoSource, ipString, portString);
                     audioRecorder.start();
-                }, () -> runOnUiThread(() -> buttonView.setEnabled(true)));
+                }, () -> runOnUiThread(() -> startStopToggleButton.setEnabled(true)));
             } else {
                 Log.d(TAG, "Stopping");
                 backgroundHandler.post(() -> {
                     audioRecorder.stop();
                     server.stop();
-                }, () -> runOnUiThread(() -> buttonView.setEnabled(true)));
+                }, () -> runOnUiThread(() -> {
+                    startStopToggleButton.setEnabled(true);
+                    ipEditText.setEnabled(true);
+                    portEditText.setEnabled(true);
+                }));
             }
         });
     }
