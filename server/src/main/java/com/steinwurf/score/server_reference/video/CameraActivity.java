@@ -108,6 +108,7 @@ public class CameraActivity extends AppCompatActivity {
                     AutoSource autoSource = new AutoSource();
                     autoSource.setSymbolSize(750);
                     autoSource.setGenerationSize(50);
+                    autoSource.setTargetRepairDelay(1000);
                     server.start(autoSource, ipString, portString);
                     CameraManager manager = (CameraManager) getSystemService(CAMERA_SERVICE);
                     try {

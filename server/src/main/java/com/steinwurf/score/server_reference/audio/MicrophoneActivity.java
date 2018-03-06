@@ -100,7 +100,6 @@ public class MicrophoneActivity extends AppCompatActivity {
                     autoSource.setSymbolSize(symbolSize);
                     autoSource.setGenerationSize(12);
                     server.start(autoSource, ipString, portString);
-                    server.start(autoSource, ipString, portString);
                     audioRecorder.start();
                 }, () -> runOnUiThread(() -> buttonView.setEnabled(true)));
             } else {

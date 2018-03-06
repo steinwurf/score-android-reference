@@ -86,8 +86,10 @@ public class Server {
      * @param portString The port to send to.
      */
     public void start(Source source, String ipString, String portString) {
-        this.source = source;
+        if (socket != null)
+            return;
 
+        this.source = source;
         port = Integer.parseInt(portString);
 
         try {
@@ -123,6 +125,7 @@ public class Server {
     public void stop() {
         if (socket != null) {
             socket.close();
+            socket = null;
         }
 
         backgroundHandler.stop();
