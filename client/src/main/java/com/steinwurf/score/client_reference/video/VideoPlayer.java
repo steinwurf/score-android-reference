@@ -133,6 +133,10 @@ public class VideoPlayer implements TextureView.SurfaceTextureListener
                 mWaitingForKeyframe = false;
                 mVideoEventListener.onKeyFrameFound();
             }
+            else
+            {
+                return;
+            }
         }
         synchronized (mVideoDecoderLock)
         {
