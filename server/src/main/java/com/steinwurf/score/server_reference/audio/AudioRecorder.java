@@ -8,7 +8,7 @@ import android.util.Log;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-public class AudioRecorder {
+class AudioRecorder {
 
     private static final String TAG = AudioRecorder.class.getSimpleName();
 
@@ -21,7 +21,7 @@ public class AudioRecorder {
 
     private final OnDataListener onDataListener;
 
-    public AudioRecorder(OnDataListener onDataListener) {
+    AudioRecorder(OnDataListener onDataListener) {
         this.onDataListener = onDataListener;
     }
 

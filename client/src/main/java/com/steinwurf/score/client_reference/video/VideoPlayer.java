@@ -21,7 +21,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
-public class VideoPlayer implements TextureView.SurfaceTextureListener
+class VideoPlayer implements TextureView.SurfaceTextureListener
 {
     private static final String TAG = VideoPlayer.class.getSimpleName();
     private final Object mVideoDecoderLock = new Object();
