@@ -38,6 +38,14 @@ public class Client {
     }
 
     /**
+     * Helper class for containing messages until they are completely received.
+     */
+    class Message {
+        int size = 150000;
+        byte[] data = new byte[size];
+    }
+
+    /**
      * Buffer for holding the incoming data packets
      */
     private final byte[] receiveBuffer = new byte[64*1024];
@@ -61,6 +69,11 @@ public class Client {
      * The score sink which transforms data packets into messages
      */
     private Sink sink;
+
+    /**
+     *  The message is stored here temporarily until it's completely received.
+     */
+    private final Message message = new Message();
 
     /**
      * Construct a Client
@@ -157,14 +170,20 @@ public class Client {
             sink.readDataPacket(buffer.array(), buffer.position(), buffer.remaining());
         } catch (Sink.InvalidDataPacketException e) {
             e.printStackTrace();
+            return;
         }
-        while (sink.hasMessage())
+
+        while (sink.hasData())
         {
-            try {
-                byte[] message = sink.getMessage();
-                onEventListener.onData(ByteBuffer.wrap(message));
-            } catch (Sink.InvalidChecksumException e) {
-                e.printStackTrace();
+            message.size = sink.messageSize();
+            if (message.data.length < message.size )
+            {
+                message.data = new byte[message.size];
+            }
+            sink.writeToMessage(message.data);
+            if (sink.messageCompleted())
+            {
+                onEventListener.onData(ByteBuffer.wrap(message.data, 0, message.size));
             }
         }
     }

@@ -5,13 +5,10 @@ import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.util.Log;
 
-import com.steinwurf.mediaplayer.AudioDecoder;
-import com.steinwurf.mediaplayer.SampleStorage;
-
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-class AudioPlayer {
+public class AudioPlayer {
 
     private static final String TAG = AudioPlayer.class.getSimpleName();
 
@@ -54,7 +51,7 @@ class AudioPlayer {
         audioTrack = null;
     }
 
-    void handleData(byte[] data)
+    public void handleData(byte[] data)
     {
         if (!isPlaying())
             return;
