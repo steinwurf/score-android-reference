@@ -15,6 +15,7 @@ import com.steinwurf.score.client_reference.R;
 import com.steinwurf.score.shared.BackgroundHandler;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 public class AudioClientActivity extends AppCompatActivity {
 
@@ -151,7 +152,7 @@ public class AudioClientActivity extends AppCompatActivity {
                 audioPlayer.start();
                 runOnUiThread(() -> lookingForSeverLinearLayout.setVisibility(View.GONE));
             }
-            audioPlayer.handleData(buffer.array());
+            audioPlayer.handleData(buffer);
         }
     }
 }

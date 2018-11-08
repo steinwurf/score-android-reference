@@ -26,6 +26,7 @@ class VideoEncoder {
     public interface OnDataListener {
         void onData(ByteBuffer data);
         void onFinish();
+        void onKeyframe();
     }
 
     /**
@@ -59,8 +60,8 @@ class VideoEncoder {
      */
     private Surface mInputSurface;
 
-    private byte[] mSPS = null;
-    private byte[] mPPS = null;
+    private ByteBuffer mSPS = null;
+    private ByteBuffer mPPS = null;
 
     VideoEncoder(OnDataListener onDataListener)
     {
@@ -112,18 +113,18 @@ class VideoEncoder {
         return mInputSurface;
     }
 
-    byte[] getSPS()
+    ByteBuffer getSPS()
     {
         if (mSPS == null)
             throw new IllegalStateException("Must be called after first call to onData has been performed");
-        return mSPS;
+        return mSPS.slice();
     }
 
-    byte[] getPPS()
+    ByteBuffer getPPS()
     {
         if (mPPS == null)
             throw new IllegalStateException("Must be called after first call to onData has been performed");
-        return mPPS;
+        return mPPS.slice();
     }
 
     private Runnable drainEncoder = new Runnable() {
@@ -138,8 +139,8 @@ class VideoEncoder {
                     bufferInfo = new MediaCodec.BufferInfo();
                 } else if (encoderStatus == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
                     MediaFormat newFormat = mEncoder.getOutputFormat();
-                    mSPS = newFormat.getByteBuffer("csd-0").array();
-                    mPPS = newFormat.getByteBuffer("csd-1").array();
+                    mSPS = newFormat.getByteBuffer("csd-0");
+                    mPPS = newFormat.getByteBuffer("csd-1");
 //                    Log.d(TAG, "output format changed");
                 } else if (encoderStatus >= 0) {
 //                    Log.i(TAG, "output available");
@@ -153,6 +154,9 @@ class VideoEncoder {
                          */
                         bufferInfo.size = 0;
                     }
+                    if ((bufferInfo.flags & MediaCodec.BUFFER_FLAG_KEY_FRAME) != 0) {
+                        onDataListener.onKeyframe();
+                    }
                     if (bufferInfo.size != 0) {
                         // It's usually necessary to adjust the ByteBuffer values to match BufferInfo.
                         videoData.position(bufferInfo.offset);
@@ -161,6 +165,8 @@ class VideoEncoder {
                         data.order(ByteOrder.BIG_ENDIAN);
                         data.put(videoData);
                         data.putLong(bufferInfo.presentationTimeUs);
+                        // be kind rewind
+                        data.position(0);
                         onDataListener.onData(data);
                     }
                     mEncoder.releaseOutputBuffer(encoderStatus, false);

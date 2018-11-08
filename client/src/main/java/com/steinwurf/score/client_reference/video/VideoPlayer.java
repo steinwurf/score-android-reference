@@ -13,13 +13,15 @@ import android.util.Log;
 import android.view.Surface;
 import android.view.TextureView;
 
+import com.steinwurf.mediaplayer.NaluType;
 import com.steinwurf.mediaplayer.SampleStorage;
 import com.steinwurf.mediaplayer.VideoDecoder;
-import com.steinwurf.score.shared.NaluType;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 class VideoPlayer implements TextureView.SurfaceTextureListener
 {
@@ -123,7 +125,7 @@ class VideoPlayer implements TextureView.SurfaceTextureListener
         return true;
     }
 
-    void handleData(long timestamp, byte[] sample)
+    void handleData(long timestamp, ByteBuffer sample)
     {
         if (mWaitingForKeyframe)
         {
