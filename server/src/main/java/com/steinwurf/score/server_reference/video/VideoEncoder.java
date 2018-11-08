@@ -26,6 +26,7 @@ class VideoEncoder {
     public interface OnDataListener {
         void onData(ByteBuffer data);
         void onFinish();
+        void onKeyframe();
     }
 
     /**
@@ -153,6 +154,9 @@ class VideoEncoder {
                          */
                         bufferInfo.size = 0;
                     }
+                    if ((bufferInfo.flags & MediaCodec.BUFFER_FLAG_KEY_FRAME) != 0) {
+                        onDataListener.onKeyframe();
+                    }
                     if (bufferInfo.size != 0) {
                         // It's usually necessary to adjust the ByteBuffer values to match BufferInfo.
                         videoData.position(bufferInfo.offset);
@@ -162,7 +166,7 @@ class VideoEncoder {
                         data.put(videoData);
                         data.putLong(bufferInfo.presentationTimeUs);
                         // be kind rewind
-                        data.position(bufferInfo.offset);
+                        data.position(0);
                         onDataListener.onData(data);
                     }
                     mEncoder.releaseOutputBuffer(encoderStatus, false);

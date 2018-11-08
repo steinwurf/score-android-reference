@@ -20,7 +20,6 @@ import android.widget.EditText;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import com.steinwurf.mediaplayer.NaluType;
 import com.steinwurf.score.server_reference.Server;
 import com.steinwurf.score.shared.BackgroundHandler;
 import com.steinwurf.score.server_reference.R;
@@ -169,11 +168,13 @@ public class ScreenCaptureActivity extends AppCompatActivity {
     private class VideoEncoderOnDataListener implements VideoEncoder.OnDataListener {
 
         @Override
+        public void onKeyframe() {
+            server.sendMessage(videoEncoder.getSPS());
+            server.sendMessage(videoEncoder.getPPS());
+        }
+
+        @Override
         public void onData(ByteBuffer buffer) {
-            if (NaluType.parse(buffer.slice()) == NaluType.IdrSlice) {
-                server.sendMessage(videoEncoder.getSPS());
-                server.sendMessage(videoEncoder.getPPS());
-            }
             server.sendMessage(buffer);
         }
 

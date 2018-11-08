@@ -55,7 +55,7 @@ public class AudioPlayer {
     {
         if (!isPlaying())
             return;
-        short[] shorts = new short[buffer.remaining()/2];
+        short[] shorts = new short[buffer.remaining() / (Short.SIZE / Byte.SIZE)];
         // to turn bytes to shorts as either big endian or little endian.
         buffer.order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().get(shorts);
         audioTrack.write(shorts, 0, shorts.length);
