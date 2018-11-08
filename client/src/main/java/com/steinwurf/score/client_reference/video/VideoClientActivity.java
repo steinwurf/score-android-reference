@@ -23,12 +23,12 @@ import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ToggleButton;
 
+import com.steinwurf.mediaplayer.NaluType;
 import com.steinwurf.mediaplayer.Utils;
 import com.steinwurf.score.client_reference.Client;
 import com.steinwurf.score.client_reference.KeepAlive;
 import com.steinwurf.score.client_reference.R;
 import com.steinwurf.score.shared.BackgroundHandler;
-import com.steinwurf.score.shared.NaluType;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -212,33 +212,38 @@ public class VideoClientActivity extends AppCompatActivity {
 
         @Override
         public void onData(ByteBuffer buffer) {
-            byte[] data = buffer.array();
-
-            if (NaluType.parse(data) == NaluType.SequenceParameterSet) {
-                if (sps == null) {
-                    Log.d(TAG, "Got sps");
-                    // store the sps
-                    sps = data.clone();
+            try {
+                if (NaluType.parse(buffer.slice()) == NaluType.SequenceParameterSet) {
+                    if (sps == null) {
+                        Log.d(TAG, "Got sps");
+                        // store the sps
+                        sps = Arrays.copyOfRange(buffer.array(), 0, buffer.remaining());
+                    }
+                    return;
                 }
+
+                if (NaluType.parse(buffer.slice()) == NaluType.PictureParameterSet) {
+                    if (pps == null) {
+                        Log.d(TAG, "Got pps");
+                        // store the pps
+                        pps = Arrays.copyOfRange(buffer.array(), 0, buffer.remaining());
+                    }
+                    return;
+                }
+            }
+            catch (IllegalArgumentException e)
+            {
+                e.printStackTrace();
                 return;
             }
-
-            if (NaluType.parse(data) == NaluType.PictureParameterSet) {
-                if (pps == null) {
-                    Log.d(TAG, "Got pps");
-                    // store the pps
-                    pps = data.clone();
-                }
-                return;
-            }
-
             if (videoPlayer.isRunning()) {
                 // The video is running so we can feed data to it
                 buffer.order(ByteOrder.BIG_ENDIAN);
                 buffer.position(buffer.remaining() - Long.SIZE / Byte.SIZE);
-                byte[] slice = Arrays.copyOfRange(data, 0, buffer.position());
                 long presentationTimeUs = buffer.getLong();
-                videoPlayer.handleData(presentationTimeUs, slice);
+                buffer.position(0);
+                buffer.limit(buffer.remaining() - Long.SIZE / Byte.SIZE);
+                videoPlayer.handleData(presentationTimeUs, buffer);
             } else if (pps != null && sps != null) {
                 Log.d(TAG, "Starting video player");
                 // We have both the sps and pps which means we are ready to start the playback.

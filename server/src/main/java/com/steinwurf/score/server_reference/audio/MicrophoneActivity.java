@@ -171,8 +171,7 @@ public class MicrophoneActivity extends AppCompatActivity {
 
         @Override
         public void onData(ByteBuffer buffer) {
-            byte[] data = buffer.array();
-            server.sendMessage(data);
+            server.sendMessage(buffer);
         }
     }
 }

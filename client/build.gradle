@@ -4,7 +4,7 @@ android {
     compileSdkVersion project.ext.compileSdkVersion
     defaultConfig {
         applicationId "com.steinwurf.score.client_reference"
-        minSdkVersion 14
+        minSdkVersion 16
         targetSdkVersion project.ext.targetSdkVersion
         versionCode androidGitVersion.code()
         versionName androidGitVersion.name()
@@ -27,7 +27,7 @@ dependencies {
     implementation 'org.jetbrains:annotations-java5:15.0'
 
     implementation 'com.steinwurf.score:sink:4.0.1'
-    implementation 'com.steinwurf.mediaplayer:mediaplayer:7.0.0'
+    implementation 'com.steinwurf.mediaplayer:mediaplayer:8.0.0'
 
     implementation project(path: ':shared')
 }

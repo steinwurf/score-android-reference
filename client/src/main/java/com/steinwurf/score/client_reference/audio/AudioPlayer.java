@@ -51,13 +51,13 @@ public class AudioPlayer {
         audioTrack = null;
     }
 
-    public void handleData(byte[] data)
+    public void handleData(ByteBuffer buffer)
     {
         if (!isPlaying())
             return;
-        short[] shorts = new short[data.length/2];
+        short[] shorts = new short[buffer.remaining()/2];
         // to turn bytes to shorts as either big endian or little endian.
-        ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().get(shorts);
+        buffer.order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().get(shorts);
         audioTrack.write(shorts, 0, shorts.length);
     }
 }

@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.nio.ByteBuffer;
 
 /**
  * Server for sending score packets
@@ -151,6 +152,7 @@ public class Server {
         } catch (InvalidSnackPacketException e) {
             e.printStackTrace();
         }
+        emptySource();
     }
 
     /**
@@ -158,10 +160,18 @@ public class Server {
      * to data packets.
      * @param message The message to end to the clients.
      */
-    public synchronized void sendMessage(byte[] message) {
+    public synchronized void sendMessage(ByteBuffer message) {
         if (isRunning())
         {
-            source.readMessage(message);
+            source.readMessage(message.array(), message.position(), message.remaining());
+            emptySource();
+        }
+    }
+
+    public synchronized void flush() {
+        if (isRunning())
+        {
+            source.flush();
             emptySource();
         }
     }

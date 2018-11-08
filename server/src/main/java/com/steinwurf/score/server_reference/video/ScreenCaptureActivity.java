@@ -16,14 +16,13 @@ import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.steinwurf.mediaplayer.NaluType;
 import com.steinwurf.score.server_reference.Server;
 import com.steinwurf.score.shared.BackgroundHandler;
-import com.steinwurf.score.shared.NaluType;
 import com.steinwurf.score.server_reference.R;
 import com.steinwurf.score.source.AutoSource;
 
@@ -171,12 +170,11 @@ public class ScreenCaptureActivity extends AppCompatActivity {
 
         @Override
         public void onData(ByteBuffer buffer) {
-            byte[] data = buffer.array();
-            if (NaluType.parse(data) == NaluType.IdrSlice) {
+            if (NaluType.parse(buffer.slice()) == NaluType.IdrSlice) {
                 server.sendMessage(videoEncoder.getSPS());
                 server.sendMessage(videoEncoder.getPPS());
             }
-            server.sendMessage(data);
+            server.sendMessage(buffer);
         }
 
         @Override

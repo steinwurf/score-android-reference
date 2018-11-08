@@ -4,7 +4,7 @@ android {
     compileSdkVersion project.ext.compileSdkVersion
     defaultConfig {
         applicationId "com.steinwurf.score.server_reference"
-        minSdkVersion 14
+        minSdkVersion 16
         targetSdkVersion project.ext.targetSdkVersion
         versionCode androidGitVersion.code()
         versionName androidGitVersion.name()
@@ -23,9 +23,11 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.android.support:appcompat-v7:27.1.1'
+    implementation 'com.android.support:appcompat-v7:28.0.0'
 
-    implementation 'com.steinwurf.score:source:2.0.1'
+    implementation 'com.steinwurf.score:source:4.0.1'
+    implementation 'com.steinwurf.mediaplayer:mediaplayer:8.0.0'
+
     implementation 'org.jetbrains:annotations-java5:15.0'
     implementation project(path: ':shared')
 }
