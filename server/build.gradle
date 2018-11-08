@@ -4,7 +4,7 @@ android {
     compileSdkVersion project.ext.compileSdkVersion
     defaultConfig {
         applicationId "com.steinwurf.score.server_reference"
-        minSdkVersion 16
+        minSdkVersion 14
         targetSdkVersion project.ext.targetSdkVersion
         versionCode androidGitVersion.code()
         versionName androidGitVersion.name()
