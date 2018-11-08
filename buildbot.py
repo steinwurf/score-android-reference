@@ -18,7 +18,7 @@ def get_compile_sdk_version():
     # We extract compileSdkVersion from build.gradle
     with open('build.gradle') as f:
         for line in f:
-            # The version assigments follow this format: "name = value"
+            # The version assignments follow this format: "name = value"
             tokens = line.strip().split(' ')
             if tokens[0] == 'compileSdkVersion':
                 return tokens[2].strip("'\"")
@@ -26,6 +26,11 @@ def get_compile_sdk_version():
 
 
 def configure(properties):
+
+    # Make sure that the previously built APK and the build folder are deleted
+    if properties.get('build_distclean'):
+        run_command(['./gradlew', 'clean'])
+
     # The required sdk versions are extracted from build.gradle
     sdk_version = get_compile_sdk_version()
     if sdk_version is None:
@@ -36,14 +41,10 @@ def configure(properties):
               '--filter android-{} --no-ui'.format(sdk_version)
     run_command(command, shell=True)
 
-    # Make sure that gradle starts from a clean state
-    if properties.get('build_distclean'):
-        run_command(['./gradlew', 'clean'])
-
 
 def build(properties):
     # Gradle builds the APK (this should be run after the waf build)
-    run_command(['./gradlew', 'assembleDebug'])
+    run_command(['./gradlew', 'assembleDebug', '--debug'])
 
 
 def run_tests(properties):
