@@ -27,7 +27,7 @@ dependencies {
     implementation 'org.jetbrains:annotations-java5:15.0'
 
     implementation 'com.steinwurf.score:sink:5.0.1'
-    implementation 'com.steinwurf.mediaplayer:mediaplayer:8.0.0'
+    implementation 'com.steinwurf:mediaplayer-android:8.1.2'
 
     implementation project(path: ':shared')
 }
